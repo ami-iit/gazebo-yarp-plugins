@@ -249,4 +249,56 @@ protected:
     std::vector<double> pinkie_lut;
 };
 
+class Proto3ThumbCouplingHandler : public BaseCouplingHandler
+{
+
+public:
+    Proto3ThumbCouplingHandler (gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits);
+
+public:
+    bool decouplePos (yarp::sig::Vector& current_pos);
+    bool decoupleVel (yarp::sig::Vector& current_vel);
+    bool decoupleAcc (yarp::sig::Vector& current_acc);
+    bool decoupleTrq (yarp::sig::Vector& current_trq);
+
+    yarp::sig::Vector decoupleRefPos (yarp::sig::Vector& pos_ref);
+    yarp::sig::Vector decoupleRefVel (yarp::sig::Vector& vel_ref);
+    yarp::sig::Vector decoupleRefTrq (yarp::sig::Vector& trq_ref);
+
+protected:
+    const double m_a0 = -0.00792793444;
+    const double m_b0 = 0.0354843085;
+    const double m_c0 = 0.0208744889;
+    const double m_d0 = 0.108985669;
+    const double m_e0 = 0.639673417;
+
+};
+
+class Proto3IndexCouplingHandler : public BaseCouplingHandler
+{
+
+public:
+    Proto3IndexCouplingHandler (gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits);
+
+public:
+    bool decouplePos (yarp::sig::Vector& current_pos);
+    bool decoupleVel (yarp::sig::Vector& current_vel);
+    bool decoupleAcc (yarp::sig::Vector& current_acc);
+    bool decoupleTrq (yarp::sig::Vector& current_trq);
+
+    yarp::sig::Vector decoupleRefPos (yarp::sig::Vector& pos_ref);
+    yarp::sig::Vector decoupleRefVel (yarp::sig::Vector& vel_ref);
+    yarp::sig::Vector decoupleRefTrq (yarp::sig::Vector& trq_ref);
+
+protected:
+    const double m_a0 = -0.00967753063;
+    const double m_b0 = 0.0490372761;
+    const double m_c0 = 0.0150052231;
+    const double m_d0 = 0.125130786;
+    const double m_e0 = 0.604870348;
+
+};
+
+
+
 #endif //GAZEBOYARP_COUPLING_H
