@@ -1570,3 +1570,75 @@ yarp::sig::Vector Proto3IndexCouplingHandler::decoupleRefTrq (yarp::sig::Vector&
     if (m_coupledJoints.size()!=m_couplingSize) return false;
     return false;
 }
+
+//------------------------------------------------------------------------------------------------------------------
+// Proto3FingerCouplingHandler
+//------------------------------------------------------------------------------------------------------------------
+
+Proto3FingerCouplingHandler::Proto3FingerCouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits)
+{   
+        m_couplingSize=8;
+}
+
+bool Proto3FingerCouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+{
+    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    current_pos[m_coupledJoints[0]] = current_pos[m_coupledJoints[4]]; 
+    current_pos[m_coupledJoints[2]] = m_a0 * std::pow(current_pos[m_coupledJoints[3]],5) + m_b0 * std::pow(current_pos[m_coupledJoints[3]],4) +
+                                      m_c0 * std::pow(current_pos[m_coupledJoints[3]],3) + m_d0 * std::pow(current_pos[m_coupledJoints[3]],2) + 
+                                      m_e0 * current_pos[m_coupledJoints[3]];
+    return true;
+}
+
+bool Proto3FingerCouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+{
+   if (m_coupledJoints.size()!=m_couplingSize) return false;
+    current_vel[m_coupledJoints[0]] = current_vel[m_coupledJoints[4]];
+    current_vel[m_coupledJoints[2]] = m_a0 * std::pow(current_vel[m_coupledJoints[3]],5) + m_b0 * std::pow(current_vel[m_coupledJoints[3]],4) +
+                                      m_c0 * std::pow(current_vel[m_coupledJoints[3]],3) + m_d0 * std::pow(current_vel[m_coupledJoints[3]],2) + 
+                                      m_e0 * current_vel[m_coupledJoints[3]];
+    return true;
+}
+
+bool Proto3FingerCouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+{
+    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    current_acc[m_coupledJoints[0]] = current_acc[m_coupledJoints[4]]; 
+    current_acc[m_coupledJoints[2]] = m_a0 * std::pow(current_acc[m_coupledJoints[3]],5) + m_b0 * std::pow(current_acc[m_coupledJoints[3]],4) +
+                                      m_c0 * std::pow(current_acc[m_coupledJoints[3]],3) + m_d0 * std::pow(current_acc[m_coupledJoints[3]],2) + 
+                                      m_e0 * current_acc[m_coupledJoints[3]];
+    return true;
+}
+
+bool Proto3FingerCouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+{
+    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    return false;
+}
+
+yarp::sig::Vector Proto3FingerCouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+{
+    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    pos_ref[m_coupledJoints[0]] = pos_ref[m_coupledJoints[4]];
+    pos_ref[m_coupledJoints[2]] = m_a0 * std::pow(pos_ref[m_coupledJoints[3]],5) + m_b0 * std::pow(pos_ref[m_coupledJoints[3]],4) +
+                                      m_c0 * std::pow(pos_ref[m_coupledJoints[3]],3) + m_d0 * std::pow(pos_ref[m_coupledJoints[3]],2) + 
+                                      m_e0 * pos_ref[m_coupledJoints[3]];
+    return true;
+}
+
+yarp::sig::Vector Proto3FingerCouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+{
+   if (m_coupledJoints.size()!=m_couplingSize) return false;
+    vel_ref[m_coupledJoints[0]] = vel_ref[m_coupledJoints[4]];
+    vel_ref[m_coupledJoints[2]] = m_a0 * std::pow(vel_ref[m_coupledJoints[3]],5) + m_b0 * std::pow(vel_ref[m_coupledJoints[3]],4) +
+                                      m_c0 * std::pow(vel_ref[m_coupledJoints[3]],3) + m_d0 * std::pow(vel_ref[m_coupledJoints[3]],2) + 
+                                      m_e0 * vel_ref[m_coupledJoints[3]];
+    return true;
+}
+
+yarp::sig::Vector Proto3FingerCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+{
+    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    return false;
+}

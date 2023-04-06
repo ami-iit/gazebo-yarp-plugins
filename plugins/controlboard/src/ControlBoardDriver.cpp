@@ -354,7 +354,13 @@ bool GazeboYarpControlBoardDriver::gazebo_init()
                 BaseCouplingHandler* cpl = new Proto3IndexCouplingHandler(m_robot,coupled_joints, coupled_joint_names, coupled_joint_limits);
                 m_coupling_handler.push_back(cpl);
                 yCInfo(GAZEBOCONTROLBOARD) << "using Proto3IndexCouplingHandler";
-            }     
+            }
+            else if (coupling_bottle->get(0).asString()=="proto3_hand_finger")
+            {
+                BaseCouplingHandler* cpl = new Proto3FingerCouplingHandler(m_robot,coupled_joints, coupled_joint_names, coupled_joint_limits);
+                m_coupling_handler.push_back(cpl);
+                yCInfo(GAZEBOCONTROLBOARD) << "using Proto3FingerCouplingHandler";
+            }       
             else if (coupling_bottle->get(0).asString()=="none")
             {
                 yCDebug(GAZEBOCONTROLBOARD) << "Just for test";
