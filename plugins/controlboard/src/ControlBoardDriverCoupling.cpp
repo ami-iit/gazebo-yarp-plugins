@@ -4,7 +4,6 @@
  * CopyPolicy: Released under the terms of the LGPLv2.1 or any later version, see LGPL.TXT or LGPL3.TXT
  */
 
-
 #include "ControlBoardDriver.h"
 #include <GazeboYarpPlugins/common.h>
 
@@ -24,11 +23,11 @@ using GazeboYarpPlugins::GAZEBOCONTROLBOARD;
 // BaseCouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-BaseCouplingHandler::BaseCouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+BaseCouplingHandler::BaseCouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
 {
     m_robot = model;
-    m_coupledJoints=coupled_joints;
-    m_coupledJointNames=coupled_joint_names;
+    m_coupledJoints = coupled_joints;
+    m_coupledJointNames = coupled_joint_names;
 
     // Configure a map between coupled joints and limits
     for (std::size_t i = 0, j = 0; i < coupled_joints.size(); i++)
@@ -41,7 +40,7 @@ BaseCouplingHandler::BaseCouplingHandler(gazebo::physics::Model* model, yarp::si
             j++;
         }
     }
-    //m_couplingSize = m_coupledJoints.size();
+    // m_couplingSize = m_coupledJoints.size();
 }
 
 BaseCouplingHandler::~BaseCouplingHandler() {}
@@ -50,7 +49,8 @@ bool BaseCouplingHandler::checkJointIsCoupled(int joint)
 {
     for (size_t i = 0; i < m_coupledJoints.size(); ++i)
     {
-        if (m_coupledJoints[i]==joint) return true;
+        if (m_coupledJoints[i] == joint)
+            return true;
     }
     return false;
 }
@@ -65,7 +65,8 @@ std::string BaseCouplingHandler::getCoupledJointName(int joint)
     int c_joint = -1;
     for (size_t i = 0; i < m_coupledJoints.size(); ++i)
     {
-        if (m_coupledJoints[i]==joint) c_joint = i;
+        if (m_coupledJoints[i] == joint)
+            c_joint = i;
     }
 
     if (c_joint >= 0 && static_cast<size_t>(c_joint) < m_coupledJoints.size())
@@ -78,7 +79,7 @@ std::string BaseCouplingHandler::getCoupledJointName(int joint)
     }
 }
 
-void BaseCouplingHandler::setCoupledJointLimit(int joint, const double& min, const double& max)
+void BaseCouplingHandler::setCoupledJointLimit(int joint, const double &min, const double &max)
 {
     const std::string coupled_joint_name = getCoupledJointName(joint);
 
@@ -89,7 +90,7 @@ void BaseCouplingHandler::setCoupledJointLimit(int joint, const double& min, con
     }
 }
 
-void BaseCouplingHandler::getCoupledJointLimit(int joint, double& min, double& max)
+void BaseCouplingHandler::getCoupledJointLimit(int joint, double &min, double &max)
 {
     const std::string coupled_joint_name = getCoupledJointName(joint);
 
@@ -104,69 +105,85 @@ void BaseCouplingHandler::getCoupledJointLimit(int joint, double& min, double& m
 // EyesCouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-EyesCouplingHandler::EyesCouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits)
+EyesCouplingHandler::EyesCouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits)
 {
     m_couplingSize = 2;
 }
 
-bool EyesCouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+bool EyesCouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size() != m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     double temp = current_pos[m_coupledJoints[0]];
     current_pos[m_coupledJoints[0]] = temp + current_pos[m_coupledJoints[1]];
     current_pos[m_coupledJoints[1]] = temp - current_pos[m_coupledJoints[1]];
     return true;
 }
 
-bool EyesCouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool EyesCouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-    if (m_coupledJoints.size() != m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     double temp = current_vel[m_coupledJoints[0]];
     current_vel[m_coupledJoints[0]] = temp + current_vel[m_coupledJoints[1]];
     current_vel[m_coupledJoints[1]] = temp - current_vel[m_coupledJoints[1]];
     return true;
 }
 
-bool EyesCouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool EyesCouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
-    if (m_coupledJoints.size() != m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     double temp = current_acc[m_coupledJoints[0]];
     current_acc[m_coupledJoints[0]] = temp + current_acc[m_coupledJoints[1]];
     current_acc[m_coupledJoints[1]] = temp - current_acc[m_coupledJoints[1]];
     return true;
 }
 
-bool EyesCouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool EyesCouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size() != m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-yarp::sig::Vector EyesCouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector EyesCouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
     yarp::sig::Vector out = pos_ref;
-    if (m_coupledJoints.size() != m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "EyesCouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[0]] = (pos_ref[m_coupledJoints[0]] + pos_ref[m_coupledJoints[1]])/2;
-    out[m_coupledJoints[1]] = (pos_ref[m_coupledJoints[0]] - pos_ref[m_coupledJoints[1]])/2;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "EyesCouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[0]] = (pos_ref[m_coupledJoints[0]] + pos_ref[m_coupledJoints[1]]) / 2;
+    out[m_coupledJoints[1]] = (pos_ref[m_coupledJoints[0]] - pos_ref[m_coupledJoints[1]]) / 2;
     return out;
 }
 
-yarp::sig::Vector EyesCouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector EyesCouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
     yarp::sig::Vector out = vel_ref;
-    if (m_coupledJoints.size() != m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "EyesCouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[0]] = (vel_ref[m_coupledJoints[0]] + vel_ref[m_coupledJoints[1]])/2;
-    out[m_coupledJoints[1]] = (vel_ref[m_coupledJoints[0]] - vel_ref[m_coupledJoints[1]])/2;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "EyesCouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[0]] = (vel_ref[m_coupledJoints[0]] + vel_ref[m_coupledJoints[1]]) / 2;
+    out[m_coupledJoints[1]] = (vel_ref[m_coupledJoints[0]] - vel_ref[m_coupledJoints[1]]) / 2;
     return out;
 }
 
-yarp::sig::Vector EyesCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector EyesCouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
     yarp::sig::Vector out = trq_ref;
-    if (m_coupledJoints.size() != m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "EyesCouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[0]] = (trq_ref[m_coupledJoints[0]] + trq_ref[m_coupledJoints[1]])/2;
-    out[m_coupledJoints[1]] = (trq_ref[m_coupledJoints[0]] - trq_ref[m_coupledJoints[1]])/2;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "EyesCouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[0]] = (trq_ref[m_coupledJoints[0]] + trq_ref[m_coupledJoints[1]]) / 2;
+    out[m_coupledJoints[1]] = (trq_ref[m_coupledJoints[0]] - trq_ref[m_coupledJoints[1]]) / 2;
     return out;
 }
 
@@ -174,69 +191,85 @@ yarp::sig::Vector EyesCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_re
 // ThumbCouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-ThumbCouplingHandler::ThumbCouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits)
+ThumbCouplingHandler::ThumbCouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits)
 {
     m_couplingSize = 4;
 }
 
-bool ThumbCouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+bool ThumbCouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size() != m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_pos[m_coupledJoints[2]] = current_pos[m_coupledJoints[2]] + current_pos[m_coupledJoints[3]];
     return true;
 }
 
-bool ThumbCouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool ThumbCouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_vel[m_coupledJoints[2]] = current_vel[m_coupledJoints[2]] + current_vel[m_coupledJoints[3]];
     return true;
 }
 
-bool ThumbCouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool ThumbCouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_acc[m_coupledJoints[2]] = current_acc[m_coupledJoints[2]] + current_acc[m_coupledJoints[3]];
     return true;
 }
 
-bool ThumbCouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool ThumbCouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-yarp::sig::Vector ThumbCouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector ThumbCouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
     yarp::sig::Vector out = pos_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "ThumbCouplingHandler: Invalid coupling vector"; return out;}
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "ThumbCouplingHandler: Invalid coupling vector";
+        return out;
+    }
     out[m_coupledJoints[0]] = pos_ref[m_coupledJoints[0]];
     out[m_coupledJoints[1]] = pos_ref[m_coupledJoints[1]];
-    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[2]]/2;
-    out[m_coupledJoints[3]] = pos_ref[m_coupledJoints[2]]/2;
+    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[2]] / 2;
+    out[m_coupledJoints[3]] = pos_ref[m_coupledJoints[2]] / 2;
     return out;
 }
 
-yarp::sig::Vector ThumbCouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector ThumbCouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
     yarp::sig::Vector out = vel_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "ThumbCouplingHandler: Invalid coupling vector"; return out;}
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "ThumbCouplingHandler: Invalid coupling vector";
+        return out;
+    }
     out[m_coupledJoints[0]] = vel_ref[m_coupledJoints[0]];
     out[m_coupledJoints[1]] = vel_ref[m_coupledJoints[1]];
-    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[2]]/2;
-    out[m_coupledJoints[3]] = vel_ref[m_coupledJoints[2]]/2;
+    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[2]] / 2;
+    out[m_coupledJoints[3]] = vel_ref[m_coupledJoints[2]] / 2;
     return out;
 }
 
-yarp::sig::Vector ThumbCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector ThumbCouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
-    yarp::sig::Vector out =trq_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "ThumbCouplingHandler: Invalid coupling vector"; return out;}
+    yarp::sig::Vector out = trq_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "ThumbCouplingHandler: Invalid coupling vector";
+        return out;
+    }
     out[m_coupledJoints[0]] = trq_ref[m_coupledJoints[0]];
     out[m_coupledJoints[1]] = trq_ref[m_coupledJoints[1]];
-    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[2]]/2;
-    out[m_coupledJoints[3]] = trq_ref[m_coupledJoints[2]]/2;
+    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[2]] / 2;
+    out[m_coupledJoints[3]] = trq_ref[m_coupledJoints[2]] / 2;
     return out;
 }
 
@@ -244,66 +277,82 @@ yarp::sig::Vector ThumbCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_r
 // IndexCouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-IndexCouplingHandler::IndexCouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits)
+IndexCouplingHandler::IndexCouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits)
 {
     m_couplingSize = 3;
 }
 
-bool IndexCouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+bool IndexCouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_pos[m_coupledJoints[1]] = current_pos[m_coupledJoints[1]] + current_pos[m_coupledJoints[2]];
     return true;
 }
 
-bool IndexCouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool IndexCouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_vel[m_coupledJoints[1]] = current_vel[m_coupledJoints[1]] + current_vel[m_coupledJoints[2]];
     return true;
 }
 
-bool IndexCouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool IndexCouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_acc[m_coupledJoints[1]] = current_acc[m_coupledJoints[1]] + current_acc[m_coupledJoints[2]];
     return true;
 }
 
-bool IndexCouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool IndexCouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-yarp::sig::Vector IndexCouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector IndexCouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
     yarp::sig::Vector out = pos_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "IndexCouplingHandler: Invalid coupling vector"; return out;}
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "IndexCouplingHandler: Invalid coupling vector";
+        return out;
+    }
     out[m_coupledJoints[0]] = pos_ref[m_coupledJoints[0]];
-    out[m_coupledJoints[1]] = pos_ref[m_coupledJoints[1]]/2;
-    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[1]]/2;
+    out[m_coupledJoints[1]] = pos_ref[m_coupledJoints[1]] / 2;
+    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[1]] / 2;
     return out;
 }
 
-yarp::sig::Vector IndexCouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector IndexCouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
     yarp::sig::Vector out = vel_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "IndexCouplingHandler: Invalid coupling vector"; return out;}
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "IndexCouplingHandler: Invalid coupling vector";
+        return out;
+    }
     out[m_coupledJoints[0]] = vel_ref[m_coupledJoints[0]];
-    out[m_coupledJoints[1]] = vel_ref[m_coupledJoints[1]]/2;
-    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[1]]/2;
+    out[m_coupledJoints[1]] = vel_ref[m_coupledJoints[1]] / 2;
+    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[1]] / 2;
     return out;
 }
 
-yarp::sig::Vector IndexCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector IndexCouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
-    yarp::sig::Vector out =trq_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "IndexCouplingHandler: Invalid coupling vector"; return out;}
+    yarp::sig::Vector out = trq_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "IndexCouplingHandler: Invalid coupling vector";
+        return out;
+    }
     out[m_coupledJoints[0]] = trq_ref[m_coupledJoints[0]];
-    out[m_coupledJoints[1]] = trq_ref[m_coupledJoints[1]]/2;
-    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[1]]/2;
+    out[m_coupledJoints[1]] = trq_ref[m_coupledJoints[1]] / 2;
+    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[1]] / 2;
     return out;
 }
 
@@ -311,66 +360,82 @@ yarp::sig::Vector IndexCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_r
 // MiddleCouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-MiddleCouplingHandler::MiddleCouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits)
+MiddleCouplingHandler::MiddleCouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits)
 {
-    m_couplingSize=3;
+    m_couplingSize = 3;
 }
 
-bool MiddleCouplingHandler::decouplePos(yarp::sig::Vector& current_pos)
+bool MiddleCouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size() != m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_pos[m_coupledJoints[1]] = current_pos[m_coupledJoints[1]] + current_pos[m_coupledJoints[2]];
     return true;
 }
 
-bool MiddleCouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool MiddleCouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_vel[m_coupledJoints[1]] = current_vel[m_coupledJoints[1]] + current_vel[m_coupledJoints[2]];
     return true;
 }
 
-bool MiddleCouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool MiddleCouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_acc[m_coupledJoints[1]] = current_acc[m_coupledJoints[1]] + current_acc[m_coupledJoints[2]];
     return true;
 }
 
-bool MiddleCouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool MiddleCouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-yarp::sig::Vector MiddleCouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector MiddleCouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
     yarp::sig::Vector out = pos_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "MiddleCouplingHandler: Invalid coupling vector"; return out;}
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "MiddleCouplingHandler: Invalid coupling vector";
+        return out;
+    }
     out[m_coupledJoints[0]] = pos_ref[m_coupledJoints[0]];
-    out[m_coupledJoints[1]] = pos_ref[m_coupledJoints[1]]/2;
-    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[1]]/2;
+    out[m_coupledJoints[1]] = pos_ref[m_coupledJoints[1]] / 2;
+    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[1]] / 2;
     return out;
 }
 
-yarp::sig::Vector MiddleCouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector MiddleCouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
     yarp::sig::Vector out = vel_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "MiddleCouplingHandler: Invalid coupling vector"; return out;}
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "MiddleCouplingHandler: Invalid coupling vector";
+        return out;
+    }
     out[m_coupledJoints[0]] = vel_ref[m_coupledJoints[0]];
-    out[m_coupledJoints[1]] = vel_ref[m_coupledJoints[1]]/2;
-    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[1]]/2;
+    out[m_coupledJoints[1]] = vel_ref[m_coupledJoints[1]] / 2;
+    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[1]] / 2;
     return out;
 }
 
-yarp::sig::Vector MiddleCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector MiddleCouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
-    yarp::sig::Vector out =trq_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "MiddleCouplingHandler: Invalid coupling vector"; return out;}
+    yarp::sig::Vector out = trq_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "MiddleCouplingHandler: Invalid coupling vector";
+        return out;
+    }
     out[m_coupledJoints[0]] = trq_ref[m_coupledJoints[0]];
-    out[m_coupledJoints[1]] = trq_ref[m_coupledJoints[1]]/2;
-    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[1]]/2;
+    out[m_coupledJoints[1]] = trq_ref[m_coupledJoints[1]] / 2;
+    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[1]] / 2;
     return out;
 }
 
@@ -378,75 +443,91 @@ yarp::sig::Vector MiddleCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_
 // PinkyCouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-PinkyCouplingHandler::PinkyCouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits)
+PinkyCouplingHandler::PinkyCouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits)
 {
-    m_couplingSize=6;
+    m_couplingSize = 6;
 }
 
-bool PinkyCouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+bool PinkyCouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_pos[m_coupledJoints[0]] = current_pos[m_coupledJoints[0]] + current_pos[m_coupledJoints[1]] + current_pos[m_coupledJoints[2]];
     return true;
 }
 
-bool PinkyCouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool PinkyCouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_vel[m_coupledJoints[0]] = current_vel[m_coupledJoints[0]] + current_vel[m_coupledJoints[1]] + current_vel[m_coupledJoints[2]];
     return true;
 }
 
-bool PinkyCouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool PinkyCouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_acc[m_coupledJoints[0]] = current_acc[m_coupledJoints[0]] + current_acc[m_coupledJoints[1]] + current_acc[m_coupledJoints[2]];
     return true;
 }
 
-bool PinkyCouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool PinkyCouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-yarp::sig::Vector PinkyCouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector PinkyCouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
     yarp::sig::Vector out = pos_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "PinkyCouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[0]] = pos_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[1]] = pos_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[3]] = pos_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[4]] = pos_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[5]] = pos_ref[m_coupledJoints[0]]/3;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "PinkyCouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[0]] = pos_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[1]] = pos_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[3]] = pos_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[4]] = pos_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[5]] = pos_ref[m_coupledJoints[0]] / 3;
     return out;
 }
 
-yarp::sig::Vector PinkyCouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector PinkyCouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
     yarp::sig::Vector out = vel_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "PinkyCouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[0]] = vel_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[1]] = vel_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[3]] = vel_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[4]] = vel_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[5]] = vel_ref[m_coupledJoints[0]]/3;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "PinkyCouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[0]] = vel_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[1]] = vel_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[3]] = vel_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[4]] = vel_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[5]] = vel_ref[m_coupledJoints[0]] / 3;
     return out;
 }
 
-yarp::sig::Vector PinkyCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector PinkyCouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
-    yarp::sig::Vector out =trq_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "PinkyCouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[0]] = trq_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[1]] = trq_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[3]] = trq_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[4]] = trq_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[5]] = trq_ref[m_coupledJoints[0]]/3;
+    yarp::sig::Vector out = trq_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "PinkyCouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[0]] = trq_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[1]] = trq_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[3]] = trq_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[4]] = trq_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[5]] = trq_ref[m_coupledJoints[0]] / 3;
     return out;
 }
 
@@ -454,70 +535,86 @@ yarp::sig::Vector PinkyCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_r
 // FingersAbductionCouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-FingersAbductionCouplingHandler::FingersAbductionCouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits)
+FingersAbductionCouplingHandler::FingersAbductionCouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits)
 {
     m_couplingSize = 4;
 }
 
-bool FingersAbductionCouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+bool FingersAbductionCouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
-    current_pos[m_coupledJoints[0]] = (20.0 - current_pos[m_coupledJoints[2]])*3;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
+    current_pos[m_coupledJoints[0]] = (20.0 - current_pos[m_coupledJoints[2]]) * 3;
     return true;
 }
 
-bool FingersAbductionCouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool FingersAbductionCouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
-    current_vel[m_coupledJoints[0]] = -current_vel[m_coupledJoints[2]]*3;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
+    current_vel[m_coupledJoints[0]] = -current_vel[m_coupledJoints[2]] * 3;
     return true;
 }
 
-bool FingersAbductionCouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool FingersAbductionCouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
 
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
-    current_acc[m_coupledJoints[0]] = -current_acc[m_coupledJoints[2]]*3;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
+    current_acc[m_coupledJoints[0]] = -current_acc[m_coupledJoints[2]] * 3;
     return true;
 }
 
-bool FingersAbductionCouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool FingersAbductionCouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-yarp::sig::Vector FingersAbductionCouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector FingersAbductionCouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
     yarp::sig::Vector out = pos_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "FingersAbductionCouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[0]] = -(20.0 - pos_ref[m_coupledJoints[0]]/3);
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "FingersAbductionCouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[0]] = -(20.0 - pos_ref[m_coupledJoints[0]] / 3);
     out[m_coupledJoints[1]] = 0.0;
-    out[m_coupledJoints[2]] = 20.0 - pos_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[3]] = 20.0 - pos_ref[m_coupledJoints[0]]/3;
+    out[m_coupledJoints[2]] = 20.0 - pos_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[3]] = 20.0 - pos_ref[m_coupledJoints[0]] / 3;
     return out;
 }
 
-yarp::sig::Vector FingersAbductionCouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector FingersAbductionCouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
     yarp::sig::Vector out = vel_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "FingersAbductionCouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[0]] = vel_ref[m_coupledJoints[0]]/3;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "FingersAbductionCouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[0]] = vel_ref[m_coupledJoints[0]] / 3;
     out[m_coupledJoints[1]] = 0.0;
-    out[m_coupledJoints[2]] = -vel_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[3]] = -vel_ref[m_coupledJoints[0]]/3;
+    out[m_coupledJoints[2]] = -vel_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[3]] = -vel_ref[m_coupledJoints[0]] / 3;
     return out;
 }
 
-yarp::sig::Vector FingersAbductionCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector FingersAbductionCouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
-    yarp::sig::Vector out =trq_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "FingersAbductionCouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[0]] = trq_ref[m_coupledJoints[0]]/3;
+    yarp::sig::Vector out = trq_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "FingersAbductionCouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[0]] = trq_ref[m_coupledJoints[0]] / 3;
     out[m_coupledJoints[1]] = 0.0;
-    out[m_coupledJoints[2]] = -trq_ref[m_coupledJoints[0]]/3;
-    out[m_coupledJoints[3]] = -trq_ref[m_coupledJoints[0]]/3;
+    out[m_coupledJoints[2]] = -trq_ref[m_coupledJoints[0]] / 3;
+    out[m_coupledJoints[3]] = -trq_ref[m_coupledJoints[0]] / 3;
     return out;
 }
 
@@ -525,15 +622,16 @@ yarp::sig::Vector FingersAbductionCouplingHandler::decoupleRefTrq (yarp::sig::Ve
 // CerHandCouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-CerHandCouplingHandler::CerHandCouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits)
+CerHandCouplingHandler::CerHandCouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits)
 {
     m_couplingSize = 4;
 }
 
-bool CerHandCouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+bool CerHandCouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     double temp0 = current_pos[m_coupledJoints[0]];
     double temp2 = current_pos[m_coupledJoints[2]];
     current_pos[m_coupledJoints[0]] = temp0 + current_pos[m_coupledJoints[1]];
@@ -541,9 +639,10 @@ bool CerHandCouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
     return true;
 }
 
-bool CerHandCouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool CerHandCouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     double temp0 = current_vel[m_coupledJoints[0]];
     double temp2 = current_vel[m_coupledJoints[2]];
     current_vel[m_coupledJoints[0]] = temp0 + current_vel[m_coupledJoints[1]];
@@ -551,10 +650,11 @@ bool CerHandCouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
     return true;
 }
 
-bool CerHandCouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool CerHandCouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
 
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     double temp0 = current_acc[m_coupledJoints[0]];
     double temp2 = current_acc[m_coupledJoints[2]];
     current_acc[m_coupledJoints[0]] = temp0 + current_acc[m_coupledJoints[1]];
@@ -562,42 +662,55 @@ bool CerHandCouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
     return true;
 }
 
-bool CerHandCouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool CerHandCouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-yarp::sig::Vector CerHandCouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector CerHandCouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
     yarp::sig::Vector out = pos_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "CerHandCouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[0]] = pos_ref[m_coupledJoints[0]]/2;
-    out[m_coupledJoints[1]] = pos_ref[m_coupledJoints[0]]/2;
-    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[1]]/2;
-    out[m_coupledJoints[3]] = pos_ref[m_coupledJoints[1]]/2;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "CerHandCouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[0]] = pos_ref[m_coupledJoints[0]] / 2;
+    out[m_coupledJoints[1]] = pos_ref[m_coupledJoints[0]] / 2;
+    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[1]] / 2;
+    out[m_coupledJoints[3]] = pos_ref[m_coupledJoints[1]] / 2;
     return out;
 }
 
-yarp::sig::Vector CerHandCouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector CerHandCouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
     yarp::sig::Vector out = vel_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "CerHandCouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[0]] = vel_ref[m_coupledJoints[0]]/2;
-    out[m_coupledJoints[1]] = vel_ref[m_coupledJoints[0]]/2;
-    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[1]]/2;
-    out[m_coupledJoints[3]] = vel_ref[m_coupledJoints[1]]/2;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "CerHandCouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[0]] = vel_ref[m_coupledJoints[0]] / 2;
+    out[m_coupledJoints[1]] = vel_ref[m_coupledJoints[0]] / 2;
+    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[1]] / 2;
+    out[m_coupledJoints[3]] = vel_ref[m_coupledJoints[1]] / 2;
     return out;
 }
 
-yarp::sig::Vector CerHandCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector CerHandCouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
-    yarp::sig::Vector out =trq_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "CerHandCouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[0]] = trq_ref[m_coupledJoints[0]]/2;
-    out[m_coupledJoints[1]] = trq_ref[m_coupledJoints[0]]/2;
-    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[1]]/2;
-    out[m_coupledJoints[3]] = trq_ref[m_coupledJoints[1]]/2;
+    yarp::sig::Vector out = trq_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "CerHandCouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[0]] = trq_ref[m_coupledJoints[0]] / 2;
+    out[m_coupledJoints[1]] = trq_ref[m_coupledJoints[0]] / 2;
+    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[1]] / 2;
+    out[m_coupledJoints[3]] = trq_ref[m_coupledJoints[1]] / 2;
     return out;
 }
 
@@ -605,11 +718,11 @@ yarp::sig::Vector CerHandCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq
 // HandMk3CouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-HandMk3CouplingHandler::HandMk3CouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits), LUTSIZE(4096)
+HandMk3CouplingHandler::HandMk3CouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits), LUTSIZE(4096)
 {
-    const double RAD2DEG = 180.0/atan2(0.0,-1.0);
-    const double DEG2RAD = 1.0/RAD2DEG;
+    const double RAD2DEG = 180.0 / atan2(0.0, -1.0);
+    const double DEG2RAD = 1.0 / RAD2DEG;
 
     m_couplingSize = 11;
 
@@ -626,44 +739,46 @@ HandMk3CouplingHandler::HandMk3CouplingHandler(gazebo::physics::Model* model, ya
 
     // thumb
     {
-        double L0x = -0.00555,          L0y = 0.00195+0.0009;
-        double P1x =  0.020,            P1y = 0.0015;
-        double L1x =  P1x-0.0055-0.003, L1y = P1y-0.002+0.0019;
+        double L0x = -0.00555, L0y = 0.00195 + 0.0009;
+        double P1x = 0.020, P1y = 0.0015;
+        double L1x = P1x - 0.0055 - 0.003, L1y = P1y - 0.002 + 0.0019;
 
-        double l2 = (P1x - L1x)*(P1x - L1x) + (P1y - L1y)*(P1y - L1y);
-        double k2 = (L1x - L0x)*(L1x - L0x) + (L1y - L0y)*(L1y - L0y);
+        double l2 = (P1x - L1x) * (P1x - L1x) + (P1y - L1y) * (P1y - L1y);
+        double k2 = (L1x - L0x) * (L1x - L0x) + (L1y - L0y) * (L1y - L0y);
 
-        double offset = RAD2DEG*atan2(L1y-P1y, L1x-P1x);
+        double offset = RAD2DEG * atan2(L1y - P1y, L1x - P1x);
 
         for (double q1 = 0.0; q1 <= 85.5; q1 += 0.01)
         {
-            double cq1 = cos(DEG2RAD*q1);
-            double sq1 = sin(DEG2RAD*q1);
+            double cq1 = cos(DEG2RAD * q1);
+            double sq1 = sin(DEG2RAD * q1);
 
-            double P1xr = cq1*P1x-sq1*P1y;
-            double P1yr = sq1*P1x+cq1*P1y;
+            double P1xr = cq1 * P1x - sq1 * P1y;
+            double P1yr = sq1 * P1x + cq1 * P1y;
 
-            double h2 = (P1xr - L0x)*(P1xr - L0x) + (P1yr - L0y)*(P1yr - L0y);
+            double h2 = (P1xr - L0x) * (P1xr - L0x) + (P1yr - L0y) * (P1yr - L0y);
 
-            double alfa = RAD2DEG*atan2(L0y - P1yr, L0x - P1xr);
+            double alfa = RAD2DEG * atan2(L0y - P1yr, L0x - P1xr);
 
-            double beta = RAD2DEG*acos((h2 + l2 - k2)/(2.0*sqrt(h2*l2)));
+            double beta = RAD2DEG * acos((h2 + l2 - k2) / (2.0 * sqrt(h2 * l2)));
 
             double q2 = alfa + beta - offset;
 
-            while (q2 <    0.0) q2 += 360.0;
-            while (q2 >= 360.0) q2 -= 360.0;
+            while (q2 < 0.0)
+                q2 += 360.0;
+            while (q2 >= 360.0)
+                q2 -= 360.0;
 
-            double dindex = q2*10.0;
+            double dindex = q2 * 10.0;
 
             int iindex = int(dindex);
 
             double w = dindex - double(iindex);
 
-            thumb_lut[iindex] += (1.0 - w)*q1;
+            thumb_lut[iindex] += (1.0 - w) * q1;
             num[iindex] += (1.0 - w);
 
-            thumb_lut[iindex + 1] += w*q1;
+            thumb_lut[iindex + 1] += w * q1;
             num[iindex + 1] += w;
         }
 
@@ -684,44 +799,46 @@ HandMk3CouplingHandler::HandMk3CouplingHandler(gazebo::physics::Model* model, ya
 
     // finger
     {
-        double P1x =  0.0300, P1y = 0.0015;
+        double P1x = 0.0300, P1y = 0.0015;
         double L0x = -0.0050, L0y = 0.0040;
-        double L1x =  0.0240, L1y = 0.0008;
+        double L1x = 0.0240, L1y = 0.0008;
 
-        double l2 = (P1x - L1x)*(P1x - L1x) + (P1y - L1y)*(P1y - L1y);
-        double k2 = (L1x - L0x)*(L1x - L0x) + (L1y - L0y)*(L1y - L0y);
+        double l2 = (P1x - L1x) * (P1x - L1x) + (P1y - L1y) * (P1y - L1y);
+        double k2 = (L1x - L0x) * (L1x - L0x) + (L1y - L0y) * (L1y - L0y);
 
-        double offset = RAD2DEG*atan2(L1y-P1y, L1x-P1x);
+        double offset = RAD2DEG * atan2(L1y - P1y, L1x - P1x);
 
         for (double q1 = 0.0; q1 <= 95.5; q1 += 0.01)
         {
-            double cq1 = cos(DEG2RAD*q1);
-            double sq1 = sin(DEG2RAD*q1);
+            double cq1 = cos(DEG2RAD * q1);
+            double sq1 = sin(DEG2RAD * q1);
 
-            double P1xr = cq1*P1x-sq1*P1y;
-            double P1yr = sq1*P1x+cq1*P1y;
+            double P1xr = cq1 * P1x - sq1 * P1y;
+            double P1yr = sq1 * P1x + cq1 * P1y;
 
-            double h2 = (P1xr - L0x)*(P1xr - L0x) + (P1yr - L0y)*(P1yr - L0y);
+            double h2 = (P1xr - L0x) * (P1xr - L0x) + (P1yr - L0y) * (P1yr - L0y);
 
-            double alfa = RAD2DEG*atan2(L0y - P1yr, L0x - P1xr);
+            double alfa = RAD2DEG * atan2(L0y - P1yr, L0x - P1xr);
 
-            double beta = RAD2DEG*acos((h2 + l2 - k2)/(2.0*sqrt(h2*l2)));
+            double beta = RAD2DEG * acos((h2 + l2 - k2) / (2.0 * sqrt(h2 * l2)));
 
             double q2 = alfa + beta - offset;
 
-            while (q2 <    0.0) q2 += 360.0;
-            while (q2 >= 360.0) q2 -= 360.0;
+            while (q2 < 0.0)
+                q2 += 360.0;
+            while (q2 >= 360.0)
+                q2 -= 360.0;
 
             // get decimal part of q2 to find out how to weigh index and index+1
-            double dindex = q2*10.0;
+            double dindex = q2 * 10.0;
             int iindex = int(dindex);
             double w = dindex - double(iindex);
 
             // Construct LUT
-            index_lut[iindex] += (1.0 - w)*q1;
+            index_lut[iindex] += (1.0 - w) * q1;
             num[iindex] += (1.0 - w);
 
-            index_lut[iindex + 1] += w*q1;
+            index_lut[iindex + 1] += w * q1;
             num[iindex + 1] += w;
         }
 
@@ -736,9 +853,10 @@ HandMk3CouplingHandler::HandMk3CouplingHandler(gazebo::physics::Model* model, ya
     }
 }
 
-bool HandMk3CouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+bool HandMk3CouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_pos[m_coupledJoints[2]] = current_pos[m_coupledJoints[2]] + current_pos[m_coupledJoints[3]];
     current_pos[m_coupledJoints[3]] = current_pos[m_coupledJoints[4]];
     current_pos[m_coupledJoints[4]] = current_pos[m_coupledJoints[5]] + current_pos[m_coupledJoints[6]];
@@ -747,9 +865,10 @@ bool HandMk3CouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
     return true;
 }
 
-bool HandMk3CouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool HandMk3CouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_vel[m_coupledJoints[2]] = current_vel[m_coupledJoints[2]] + current_vel[m_coupledJoints[3]];
     current_vel[m_coupledJoints[3]] = current_vel[m_coupledJoints[4]];
     current_vel[m_coupledJoints[4]] = current_vel[m_coupledJoints[5]] + current_vel[m_coupledJoints[6]];
@@ -758,9 +877,10 @@ bool HandMk3CouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
     return true;
 }
 
-bool HandMk3CouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool HandMk3CouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_acc[m_coupledJoints[2]] = current_acc[m_coupledJoints[2]] + current_acc[m_coupledJoints[3]];
     current_acc[m_coupledJoints[3]] = current_acc[m_coupledJoints[4]];
     current_acc[m_coupledJoints[4]] = current_acc[m_coupledJoints[5]] + current_acc[m_coupledJoints[6]];
@@ -769,67 +889,80 @@ bool HandMk3CouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
     return true;
 }
 
-bool HandMk3CouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool HandMk3CouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-double HandMk3CouplingHandler::decouple (double q2, std::vector<double>& lut)
+double HandMk3CouplingHandler::decouple(double q2, std::vector<double> &lut)
 {
 
-    double dindex = q2*10.0;
+    double dindex = q2 * 10.0;
     int iindex = int(dindex);
     // get decimal part of q2 to find out how to weigh index and index+1
     double w = dindex - double(iindex);
     // interpolate between index and the next with a convex combination weighting
-    return lut[iindex]*(1.0 - w) + lut[iindex + 1]*w;
+    return lut[iindex] * (1.0 - w) + lut[iindex + 1] * w;
 }
 
-yarp::sig::Vector HandMk3CouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector HandMk3CouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
     yarp::sig::Vector out = pos_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "HandMk3CouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[2]]  = decouple(pos_ref[m_coupledJoints[2]], thumb_lut);
-    out[m_coupledJoints[3]]  = pos_ref[m_coupledJoints[2]] - out[m_coupledJoints[2]];
-    out[m_coupledJoints[4]]  = pos_ref[m_coupledJoints[3]];
-    out[m_coupledJoints[5]]  = decouple(pos_ref[m_coupledJoints[4]], index_lut);
-    out[m_coupledJoints[6]]  = pos_ref[m_coupledJoints[4]] - out[m_coupledJoints[5]];
-    out[m_coupledJoints[7]]  = decouple(pos_ref[m_coupledJoints[5]], index_lut);
-    out[m_coupledJoints[8]]  = pos_ref[m_coupledJoints[5]] - out[m_coupledJoints[7]];
-    out[m_coupledJoints[9]]  = decouple(pos_ref[m_coupledJoints[6]], index_lut);
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "HandMk3CouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[2]] = decouple(pos_ref[m_coupledJoints[2]], thumb_lut);
+    out[m_coupledJoints[3]] = pos_ref[m_coupledJoints[2]] - out[m_coupledJoints[2]];
+    out[m_coupledJoints[4]] = pos_ref[m_coupledJoints[3]];
+    out[m_coupledJoints[5]] = decouple(pos_ref[m_coupledJoints[4]], index_lut);
+    out[m_coupledJoints[6]] = pos_ref[m_coupledJoints[4]] - out[m_coupledJoints[5]];
+    out[m_coupledJoints[7]] = decouple(pos_ref[m_coupledJoints[5]], index_lut);
+    out[m_coupledJoints[8]] = pos_ref[m_coupledJoints[5]] - out[m_coupledJoints[7]];
+    out[m_coupledJoints[9]] = decouple(pos_ref[m_coupledJoints[6]], index_lut);
     out[m_coupledJoints[10]] = pos_ref[m_coupledJoints[6]] - out[m_coupledJoints[9]];
     return out;
 }
 
-yarp::sig::Vector HandMk3CouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector HandMk3CouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
     yarp::sig::Vector out = vel_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "HandMk3CouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[2]]  = decouple(vel_ref[m_coupledJoints[2]], thumb_lut);
-    out[m_coupledJoints[3]]  = vel_ref[m_coupledJoints[2]] - out[m_coupledJoints[2]];
-    out[m_coupledJoints[4]]  = vel_ref[m_coupledJoints[3]];
-    out[m_coupledJoints[5]]  = decouple(vel_ref[m_coupledJoints[4]], index_lut);
-    out[m_coupledJoints[6]]  = vel_ref[m_coupledJoints[4]] - out[m_coupledJoints[5]];
-    out[m_coupledJoints[7]]  = decouple(vel_ref[m_coupledJoints[5]], index_lut);
-    out[m_coupledJoints[8]]  = vel_ref[m_coupledJoints[5]] - out[m_coupledJoints[7]];
-    out[m_coupledJoints[9]]  = decouple(vel_ref[m_coupledJoints[6]], index_lut);
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "HandMk3CouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[2]] = decouple(vel_ref[m_coupledJoints[2]], thumb_lut);
+    out[m_coupledJoints[3]] = vel_ref[m_coupledJoints[2]] - out[m_coupledJoints[2]];
+    out[m_coupledJoints[4]] = vel_ref[m_coupledJoints[3]];
+    out[m_coupledJoints[5]] = decouple(vel_ref[m_coupledJoints[4]], index_lut);
+    out[m_coupledJoints[6]] = vel_ref[m_coupledJoints[4]] - out[m_coupledJoints[5]];
+    out[m_coupledJoints[7]] = decouple(vel_ref[m_coupledJoints[5]], index_lut);
+    out[m_coupledJoints[8]] = vel_ref[m_coupledJoints[5]] - out[m_coupledJoints[7]];
+    out[m_coupledJoints[9]] = decouple(vel_ref[m_coupledJoints[6]], index_lut);
     out[m_coupledJoints[10]] = vel_ref[m_coupledJoints[6]] - out[m_coupledJoints[9]];
     return out;
 }
 
-yarp::sig::Vector HandMk3CouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector HandMk3CouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
-    yarp::sig::Vector out =trq_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "HandMk3CouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[2]]  = decouple(trq_ref[m_coupledJoints[2]], thumb_lut);
-    out[m_coupledJoints[3]]  = trq_ref[m_coupledJoints[2]] - out[m_coupledJoints[2]];
-    out[m_coupledJoints[4]]  = trq_ref[m_coupledJoints[3]];
-    out[m_coupledJoints[5]]  = decouple(trq_ref[m_coupledJoints[4]], index_lut);
-    out[m_coupledJoints[6]]  = trq_ref[m_coupledJoints[4]] - out[m_coupledJoints[5]];
-    out[m_coupledJoints[7]]  = decouple(trq_ref[m_coupledJoints[5]], index_lut);
-    out[m_coupledJoints[8]]  = trq_ref[m_coupledJoints[5]] - out[m_coupledJoints[7]];
-    out[m_coupledJoints[9]]  = decouple(trq_ref[m_coupledJoints[6]], index_lut);
+    yarp::sig::Vector out = trq_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "HandMk3CouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[2]] = decouple(trq_ref[m_coupledJoints[2]], thumb_lut);
+    out[m_coupledJoints[3]] = trq_ref[m_coupledJoints[2]] - out[m_coupledJoints[2]];
+    out[m_coupledJoints[4]] = trq_ref[m_coupledJoints[3]];
+    out[m_coupledJoints[5]] = decouple(trq_ref[m_coupledJoints[4]], index_lut);
+    out[m_coupledJoints[6]] = trq_ref[m_coupledJoints[4]] - out[m_coupledJoints[5]];
+    out[m_coupledJoints[7]] = decouple(trq_ref[m_coupledJoints[5]], index_lut);
+    out[m_coupledJoints[8]] = trq_ref[m_coupledJoints[5]] - out[m_coupledJoints[7]];
+    out[m_coupledJoints[9]] = decouple(trq_ref[m_coupledJoints[6]], index_lut);
     out[m_coupledJoints[10]] = trq_ref[m_coupledJoints[6]] - out[m_coupledJoints[9]];
     return out;
 }
@@ -838,11 +971,11 @@ yarp::sig::Vector HandMk3CouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq
 // HandMk4CouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-HandMk4CouplingHandler::HandMk4CouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits), LUTSIZE(4096)
+HandMk4CouplingHandler::HandMk4CouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits), LUTSIZE(4096)
 {
-    const double RAD2DEG = 180.0/atan2(0.0,-1.0);
-    const double DEG2RAD = 1.0/RAD2DEG;
+    const double RAD2DEG = 180.0 / atan2(0.0, -1.0);
+    const double DEG2RAD = 1.0 / RAD2DEG;
 
     m_couplingSize = 13;
 
@@ -859,44 +992,46 @@ HandMk4CouplingHandler::HandMk4CouplingHandler(gazebo::physics::Model* model, ya
         thumb_lut[n] = 0.0;
     }
     {
-        double L0x = -0.00555,    L0y = 0.00285;
-        double P1x =  0.02,       P1y = 0.0015;
-        double L1x =  0.0115,     L1y = 0.0015;
+        double L0x = -0.00555, L0y = 0.00285;
+        double P1x = 0.02, P1y = 0.0015;
+        double L1x = 0.0115, L1y = 0.0015;
 
-        double l2 = (P1x - L1x)*(P1x - L1x) + (P1y - L1y)*(P1y - L1y);
-        double k2 = (L1x - L0x)*(L1x - L0x) + (L1y - L0y)*(L1y - L0y);
+        double l2 = (P1x - L1x) * (P1x - L1x) + (P1y - L1y) * (P1y - L1y);
+        double k2 = (L1x - L0x) * (L1x - L0x) + (L1y - L0y) * (L1y - L0y);
 
         double offset = 180;
 
         for (double q1 = 0.0; q1 <= 85.5; q1 += 0.01)
         {
-            double cq1 = cos(DEG2RAD*q1);
-            double sq1 = sin(DEG2RAD*q1);
+            double cq1 = cos(DEG2RAD * q1);
+            double sq1 = sin(DEG2RAD * q1);
 
-            double P1xr = cq1*P1x-sq1*P1y;
-            double P1yr = sq1*P1x+cq1*P1y;
+            double P1xr = cq1 * P1x - sq1 * P1y;
+            double P1yr = sq1 * P1x + cq1 * P1y;
 
-            double h2 = (P1xr - L0x)*(P1xr - L0x) + (P1yr - L0y)*(P1yr - L0y);
+            double h2 = (P1xr - L0x) * (P1xr - L0x) + (P1yr - L0y) * (P1yr - L0y);
 
-            double alfa = RAD2DEG*atan2(L0y - P1yr, L0x - P1xr);
+            double alfa = RAD2DEG * atan2(L0y - P1yr, L0x - P1xr);
 
-            double beta = RAD2DEG*acos((h2 + l2 - k2)/(2.0*sqrt(h2*l2)));
+            double beta = RAD2DEG * acos((h2 + l2 - k2) / (2.0 * sqrt(h2 * l2)));
 
             double q2 = alfa + beta - offset;
 
-            while (q2 <    0.0) q2 += 360.0;
-            while (q2 >= 360.0) q2 -= 360.0;
+            while (q2 < 0.0)
+                q2 += 360.0;
+            while (q2 >= 360.0)
+                q2 -= 360.0;
 
-            double dindex = q2*10.0;
+            double dindex = q2 * 10.0;
 
             int iindex = int(dindex);
 
             double w = dindex - double(iindex);
 
-            thumb_lut[iindex] += (1.0 - w)*q1;
+            thumb_lut[iindex] += (1.0 - w) * q1;
             num[iindex] += (1.0 - w);
 
-            thumb_lut[iindex + 1] += w*q1;
+            thumb_lut[iindex + 1] += w * q1;
             num[iindex + 1] += w;
         }
 
@@ -916,44 +1051,46 @@ HandMk4CouplingHandler::HandMk4CouplingHandler(gazebo::physics::Model* model, ya
         index_lut[n] = 0.0;
     }
     {
-        double P1x =  0.0300, P1y = 0.0015;
+        double P1x = 0.0300, P1y = 0.0015;
         double L0x = -0.0050, L0y = 0.0040;
-        double L1x =  0.0240, L1y = 0.0008;
+        double L1x = 0.0240, L1y = 0.0008;
 
-        double l2 = (P1x - L1x)*(P1x - L1x) + (P1y - L1y)*(P1y - L1y);
-        double k2 = (L1x - L0x)*(L1x - L0x) + (L1y - L0y)*(L1y - L0y);
+        double l2 = (P1x - L1x) * (P1x - L1x) + (P1y - L1y) * (P1y - L1y);
+        double k2 = (L1x - L0x) * (L1x - L0x) + (L1y - L0y) * (L1y - L0y);
 
         double offset = 173.35;
 
         for (double q1 = 0.0; q1 <= 95.5; q1 += 0.01)
         {
-            double cq1 = cos(DEG2RAD*q1);
-            double sq1 = sin(DEG2RAD*q1);
+            double cq1 = cos(DEG2RAD * q1);
+            double sq1 = sin(DEG2RAD * q1);
 
-            double P1xr = cq1*P1x-sq1*P1y;
-            double P1yr = sq1*P1x+cq1*P1y;
+            double P1xr = cq1 * P1x - sq1 * P1y;
+            double P1yr = sq1 * P1x + cq1 * P1y;
 
-            double h2 = (P1xr - L0x)*(P1xr - L0x) + (P1yr - L0y)*(P1yr - L0y);
+            double h2 = (P1xr - L0x) * (P1xr - L0x) + (P1yr - L0y) * (P1yr - L0y);
 
-            double alfa = RAD2DEG*atan2(L0y - P1yr, L0x - P1xr);
+            double alfa = RAD2DEG * atan2(L0y - P1yr, L0x - P1xr);
 
-            double beta = RAD2DEG*acos((h2 + l2 - k2)/(2.0*sqrt(h2*l2)));
+            double beta = RAD2DEG * acos((h2 + l2 - k2) / (2.0 * sqrt(h2 * l2)));
 
             double q2 = alfa + beta - offset;
 
-            while (q2 <    0.0) q2 += 360.0;
-            while (q2 >= 360.0) q2 -= 360.0;
+            while (q2 < 0.0)
+                q2 += 360.0;
+            while (q2 >= 360.0)
+                q2 -= 360.0;
 
             // get decimal part of q2 to find out how to weigh index and index+1
-            double dindex = q2*10.0;
+            double dindex = q2 * 10.0;
             int iindex = int(dindex);
             double w = dindex - double(iindex);
 
             // Construct LUT
-            index_lut[iindex] += (1.0 - w)*q1;
+            index_lut[iindex] += (1.0 - w) * q1;
             num[iindex] += (1.0 - w);
 
-            index_lut[iindex + 1] += w*q1;
+            index_lut[iindex + 1] += w * q1;
             num[iindex + 1] += w;
         }
 
@@ -974,43 +1111,45 @@ HandMk4CouplingHandler::HandMk4CouplingHandler(gazebo::physics::Model* model, ya
         pinkie_lut[n] = 0.0;
     }
     {
-        double P1x =  0.0250, P1y = 0.0015;
+        double P1x = 0.0250, P1y = 0.0015;
         double L0x = -0.0050, L0y = 0.0040;
-        double L1x =  0.0190, L1y = 0.0005;
+        double L1x = 0.0190, L1y = 0.0005;
 
-        double l2 = (P1x - L1x)*(P1x - L1x) + (P1y - L1y)*(P1y - L1y);
-        double k2 = (L1x - L0x)*(L1x - L0x) + (L1y - L0y)*(L1y - L0y);
+        double l2 = (P1x - L1x) * (P1x - L1x) + (P1y - L1y) * (P1y - L1y);
+        double k2 = (L1x - L0x) * (L1x - L0x) + (L1y - L0y) * (L1y - L0y);
 
         double offset = 170.54;
         for (double q1 = 0.0; q1 <= 95.5; q1 += 0.01)
         {
-            double cq1 = cos(DEG2RAD*q1);
-            double sq1 = sin(DEG2RAD*q1);
+            double cq1 = cos(DEG2RAD * q1);
+            double sq1 = sin(DEG2RAD * q1);
 
-            double P1xr = cq1*P1x-sq1*P1y;
-            double P1yr = sq1*P1x+cq1*P1y;
+            double P1xr = cq1 * P1x - sq1 * P1y;
+            double P1yr = sq1 * P1x + cq1 * P1y;
 
-            double h2 = (P1xr - L0x)*(P1xr - L0x) + (P1yr - L0y)*(P1yr - L0y);
+            double h2 = (P1xr - L0x) * (P1xr - L0x) + (P1yr - L0y) * (P1yr - L0y);
 
-            double alfa = RAD2DEG*atan2(L0y - P1yr, L0x - P1xr);
+            double alfa = RAD2DEG * atan2(L0y - P1yr, L0x - P1xr);
 
-            double beta = RAD2DEG*acos((h2 + l2 - k2)/(2.0*sqrt(h2*l2)));
+            double beta = RAD2DEG * acos((h2 + l2 - k2) / (2.0 * sqrt(h2 * l2)));
 
             double q2 = alfa + beta - offset;
 
-            while (q2 <    0.0) q2 += 360.0;
-            while (q2 >= 360.0) q2 -= 360.0;
+            while (q2 < 0.0)
+                q2 += 360.0;
+            while (q2 >= 360.0)
+                q2 -= 360.0;
 
             // get decimal part of q2 to find out how to weigh index and index+1
-            double dindex = q2*10.0;
+            double dindex = q2 * 10.0;
             int iindex = int(dindex);
             double w = dindex - double(iindex);
 
             // Construct LUT
-            pinkie_lut[iindex] += (1.0 - w)*q1;
+            pinkie_lut[iindex] += (1.0 - w) * q1;
             num[iindex] += (1.0 - w);
 
-            pinkie_lut[iindex + 1] += w*q1;
+            pinkie_lut[iindex + 1] += w * q1;
             num[iindex + 1] += w;
         }
 
@@ -1025,9 +1164,10 @@ HandMk4CouplingHandler::HandMk4CouplingHandler(gazebo::physics::Model* model, ya
     }
 }
 
-bool HandMk4CouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+bool HandMk4CouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_pos[m_coupledJoints[2]] = current_pos[m_coupledJoints[2]] + current_pos[m_coupledJoints[3]];
     current_pos[m_coupledJoints[3]] = current_pos[m_coupledJoints[4]];
     current_pos[m_coupledJoints[4]] = current_pos[m_coupledJoints[5]] + current_pos[m_coupledJoints[6]];
@@ -1036,9 +1176,10 @@ bool HandMk4CouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
     return true;
 }
 
-bool HandMk4CouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool HandMk4CouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_vel[m_coupledJoints[2]] = current_vel[m_coupledJoints[2]] + current_vel[m_coupledJoints[3]];
     current_vel[m_coupledJoints[3]] = current_vel[m_coupledJoints[4]];
     current_vel[m_coupledJoints[4]] = current_vel[m_coupledJoints[5]] + current_vel[m_coupledJoints[6]];
@@ -1047,9 +1188,10 @@ bool HandMk4CouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
     return true;
 }
 
-bool HandMk4CouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool HandMk4CouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_acc[m_coupledJoints[2]] = current_acc[m_coupledJoints[2]] + current_acc[m_coupledJoints[3]];
     current_acc[m_coupledJoints[3]] = current_acc[m_coupledJoints[4]];
     current_acc[m_coupledJoints[4]] = current_acc[m_coupledJoints[5]] + current_acc[m_coupledJoints[6]];
@@ -1058,73 +1200,89 @@ bool HandMk4CouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
     return true;
 }
 
-bool HandMk4CouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool HandMk4CouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-double HandMk4CouplingHandler::decouple (double q2, std::vector<double>& lut)
+double HandMk4CouplingHandler::decouple(double q2, std::vector<double> &lut)
 {
 
-    double dindex = q2*10.0;
+    double dindex = q2 * 10.0;
     int iindex = int(dindex);
     // get decimal part of q2 to find out how to weigh index and index+1
     double w = dindex - double(iindex);
     // interpolate between index and the next with a convex combination weighting
-    return lut[iindex]*(1.0 - w) + lut[iindex + 1]*w;
+    return lut[iindex] * (1.0 - w) + lut[iindex + 1] * w;
 }
 
-yarp::sig::Vector HandMk4CouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector HandMk4CouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
     yarp::sig::Vector out = pos_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "HandMk4CouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[2]]  = decouple(pos_ref[m_coupledJoints[2]], thumb_lut);
-    out[m_coupledJoints[3]]  = pos_ref[m_coupledJoints[2]] - out[m_coupledJoints[2]];
-    out[m_coupledJoints[4]]  = pos_ref[m_coupledJoints[3]];
-    out[m_coupledJoints[5]]  = decouple(pos_ref[m_coupledJoints[4]], index_lut);
-    out[m_coupledJoints[6]]  = pos_ref[m_coupledJoints[4]] - out[m_coupledJoints[5]];
-    out[m_coupledJoints[7]]  = decouple(pos_ref[m_coupledJoints[5]], index_lut);
-    out[m_coupledJoints[8]]  = pos_ref[m_coupledJoints[5]] - out[m_coupledJoints[7]];
-    out[m_coupledJoints[9]]  = decouple(pos_ref[m_coupledJoints[6]], index_lut);
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "HandMk4CouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[2]] = decouple(pos_ref[m_coupledJoints[2]], thumb_lut);
+    out[m_coupledJoints[3]] = pos_ref[m_coupledJoints[2]] - out[m_coupledJoints[2]];
+    out[m_coupledJoints[4]] = pos_ref[m_coupledJoints[3]];
+    out[m_coupledJoints[5]] = decouple(pos_ref[m_coupledJoints[4]], index_lut);
+    out[m_coupledJoints[6]] = pos_ref[m_coupledJoints[4]] - out[m_coupledJoints[5]];
+    out[m_coupledJoints[7]] = decouple(pos_ref[m_coupledJoints[5]], index_lut);
+    out[m_coupledJoints[8]] = pos_ref[m_coupledJoints[5]] - out[m_coupledJoints[7]];
+    out[m_coupledJoints[9]] = decouple(pos_ref[m_coupledJoints[6]], index_lut);
     out[m_coupledJoints[10]] = pos_ref[m_coupledJoints[6]] - out[m_coupledJoints[9]];
-    out[m_coupledJoints[11]] = decouple(pos_ref[m_coupledJoints[6]], pinkie_lut);;
+    out[m_coupledJoints[11]] = decouple(pos_ref[m_coupledJoints[6]], pinkie_lut);
+    ;
     out[m_coupledJoints[12]] = pos_ref[m_coupledJoints[6]] - out[m_coupledJoints[11]];
     return out;
 }
 
-yarp::sig::Vector HandMk4CouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector HandMk4CouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
     yarp::sig::Vector out = vel_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "HandMk4CouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[2]]  = decouple(vel_ref[m_coupledJoints[2]], thumb_lut);
-    out[m_coupledJoints[3]]  = vel_ref[m_coupledJoints[2]] - out[m_coupledJoints[2]];
-    out[m_coupledJoints[4]]  = vel_ref[m_coupledJoints[3]];
-    out[m_coupledJoints[5]]  = decouple(vel_ref[m_coupledJoints[4]], index_lut);
-    out[m_coupledJoints[6]]  = vel_ref[m_coupledJoints[4]] - out[m_coupledJoints[5]];
-    out[m_coupledJoints[7]]  = decouple(vel_ref[m_coupledJoints[5]], index_lut);
-    out[m_coupledJoints[8]]  = vel_ref[m_coupledJoints[5]] - out[m_coupledJoints[7]];
-    out[m_coupledJoints[9]]  = decouple(vel_ref[m_coupledJoints[6]], index_lut);
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "HandMk4CouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[2]] = decouple(vel_ref[m_coupledJoints[2]], thumb_lut);
+    out[m_coupledJoints[3]] = vel_ref[m_coupledJoints[2]] - out[m_coupledJoints[2]];
+    out[m_coupledJoints[4]] = vel_ref[m_coupledJoints[3]];
+    out[m_coupledJoints[5]] = decouple(vel_ref[m_coupledJoints[4]], index_lut);
+    out[m_coupledJoints[6]] = vel_ref[m_coupledJoints[4]] - out[m_coupledJoints[5]];
+    out[m_coupledJoints[7]] = decouple(vel_ref[m_coupledJoints[5]], index_lut);
+    out[m_coupledJoints[8]] = vel_ref[m_coupledJoints[5]] - out[m_coupledJoints[7]];
+    out[m_coupledJoints[9]] = decouple(vel_ref[m_coupledJoints[6]], index_lut);
     out[m_coupledJoints[10]] = vel_ref[m_coupledJoints[6]] - out[m_coupledJoints[9]];
-    out[m_coupledJoints[11]] = decouple(vel_ref[m_coupledJoints[6]], pinkie_lut);;
+    out[m_coupledJoints[11]] = decouple(vel_ref[m_coupledJoints[6]], pinkie_lut);
+    ;
     out[m_coupledJoints[12]] = vel_ref[m_coupledJoints[6]] - out[m_coupledJoints[11]];
     return out;
 }
 
-yarp::sig::Vector HandMk4CouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector HandMk4CouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
-    yarp::sig::Vector out =trq_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "HandMk4CouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[2]]  = decouple(trq_ref[m_coupledJoints[2]], thumb_lut);
-    out[m_coupledJoints[3]]  = trq_ref[m_coupledJoints[2]] - out[m_coupledJoints[2]];
-    out[m_coupledJoints[4]]  = trq_ref[m_coupledJoints[3]];
-    out[m_coupledJoints[5]]  = decouple(trq_ref[m_coupledJoints[4]], index_lut);
-    out[m_coupledJoints[6]]  = trq_ref[m_coupledJoints[4]] - out[m_coupledJoints[5]];
-    out[m_coupledJoints[7]]  = decouple(trq_ref[m_coupledJoints[5]], index_lut);
-    out[m_coupledJoints[8]]  = trq_ref[m_coupledJoints[5]] - out[m_coupledJoints[7]];
-    out[m_coupledJoints[9]]  = decouple(trq_ref[m_coupledJoints[6]], index_lut);
+    yarp::sig::Vector out = trq_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "HandMk4CouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[2]] = decouple(trq_ref[m_coupledJoints[2]], thumb_lut);
+    out[m_coupledJoints[3]] = trq_ref[m_coupledJoints[2]] - out[m_coupledJoints[2]];
+    out[m_coupledJoints[4]] = trq_ref[m_coupledJoints[3]];
+    out[m_coupledJoints[5]] = decouple(trq_ref[m_coupledJoints[4]], index_lut);
+    out[m_coupledJoints[6]] = trq_ref[m_coupledJoints[4]] - out[m_coupledJoints[5]];
+    out[m_coupledJoints[7]] = decouple(trq_ref[m_coupledJoints[5]], index_lut);
+    out[m_coupledJoints[8]] = trq_ref[m_coupledJoints[5]] - out[m_coupledJoints[7]];
+    out[m_coupledJoints[9]] = decouple(trq_ref[m_coupledJoints[6]], index_lut);
     out[m_coupledJoints[10]] = trq_ref[m_coupledJoints[6]] - out[m_coupledJoints[9]];
-    out[m_coupledJoints[11]] = decouple(trq_ref[m_coupledJoints[6]], pinkie_lut);;
+    out[m_coupledJoints[11]] = decouple(trq_ref[m_coupledJoints[6]], pinkie_lut);
+    ;
     out[m_coupledJoints[12]] = trq_ref[m_coupledJoints[6]] - out[m_coupledJoints[11]];
     return out;
 }
@@ -1133,11 +1291,11 @@ yarp::sig::Vector HandMk4CouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq
 // HandMk5CouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-HandMk5CouplingHandler::HandMk5CouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits), LUTSIZE(4096)
+HandMk5CouplingHandler::HandMk5CouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits), LUTSIZE(4096)
 {
-    const double RAD2DEG = 180.0/atan2(0.0,-1.0);
-    const double DEG2RAD = 1.0/RAD2DEG;
+    const double RAD2DEG = 180.0 / atan2(0.0, -1.0);
+    const double DEG2RAD = 1.0 / RAD2DEG;
 
     m_couplingSize = 12;
 
@@ -1154,44 +1312,46 @@ HandMk5CouplingHandler::HandMk5CouplingHandler(gazebo::physics::Model* model, ya
         thumb_lut[n] = 0.0;
     }
     {
-        double L0x = -0.00555,    L0y = 0.00285;
-        double P1x =  0.02,       P1y = 0.0015;
-        double L1x =  0.0115,     L1y = 0.0015;
+        double L0x = -0.00555, L0y = 0.00285;
+        double P1x = 0.02, P1y = 0.0015;
+        double L1x = 0.0115, L1y = 0.0015;
 
-        double l2 = (P1x - L1x)*(P1x - L1x) + (P1y - L1y)*(P1y - L1y);
-        double k2 = (L1x - L0x)*(L1x - L0x) + (L1y - L0y)*(L1y - L0y);
+        double l2 = (P1x - L1x) * (P1x - L1x) + (P1y - L1y) * (P1y - L1y);
+        double k2 = (L1x - L0x) * (L1x - L0x) + (L1y - L0y) * (L1y - L0y);
 
         double offset = 180;
 
         for (double q1 = 0.0; q1 <= 85.5; q1 += 0.01)
         {
-            double cq1 = cos(DEG2RAD*q1);
-            double sq1 = sin(DEG2RAD*q1);
+            double cq1 = cos(DEG2RAD * q1);
+            double sq1 = sin(DEG2RAD * q1);
 
-            double P1xr = cq1*P1x-sq1*P1y;
-            double P1yr = sq1*P1x+cq1*P1y;
+            double P1xr = cq1 * P1x - sq1 * P1y;
+            double P1yr = sq1 * P1x + cq1 * P1y;
 
-            double h2 = (P1xr - L0x)*(P1xr - L0x) + (P1yr - L0y)*(P1yr - L0y);
+            double h2 = (P1xr - L0x) * (P1xr - L0x) + (P1yr - L0y) * (P1yr - L0y);
 
-            double alfa = RAD2DEG*atan2(L0y - P1yr, L0x - P1xr);
+            double alfa = RAD2DEG * atan2(L0y - P1yr, L0x - P1xr);
 
-            double beta = RAD2DEG*acos((h2 + l2 - k2)/(2.0*sqrt(h2*l2)));
+            double beta = RAD2DEG * acos((h2 + l2 - k2) / (2.0 * sqrt(h2 * l2)));
 
             double q2 = alfa + beta - offset;
 
-            while (q2 <    0.0) q2 += 360.0;
-            while (q2 >= 360.0) q2 -= 360.0;
+            while (q2 < 0.0)
+                q2 += 360.0;
+            while (q2 >= 360.0)
+                q2 -= 360.0;
 
-            double dindex = q2*10.0;
+            double dindex = q2 * 10.0;
 
             int iindex = int(dindex);
 
             double w = dindex - double(iindex);
 
-            thumb_lut[iindex] += (1.0 - w)*q1;
+            thumb_lut[iindex] += (1.0 - w) * q1;
             num[iindex] += (1.0 - w);
 
-            thumb_lut[iindex + 1] += w*q1;
+            thumb_lut[iindex + 1] += w * q1;
             num[iindex + 1] += w;
         }
 
@@ -1204,7 +1364,6 @@ HandMk5CouplingHandler::HandMk5CouplingHandler(gazebo::physics::Model* model, ya
         }
     }
 
-
     // index, middle, ring
     for (int n = 0; n < LUTSIZE; ++n)
     {
@@ -1212,44 +1371,46 @@ HandMk5CouplingHandler::HandMk5CouplingHandler(gazebo::physics::Model* model, ya
         index_lut[n] = 0.0;
     }
     {
-        double P1x =  0.0300, P1y = 0.0015;
+        double P1x = 0.0300, P1y = 0.0015;
         double L0x = -0.0050, L0y = 0.0040;
-        double L1x =  0.0240, L1y = 0.0008;
+        double L1x = 0.0240, L1y = 0.0008;
 
-        double l2 = (P1x - L1x)*(P1x - L1x) + (P1y - L1y)*(P1y - L1y);
-        double k2 = (L1x - L0x)*(L1x - L0x) + (L1y - L0y)*(L1y - L0y);
+        double l2 = (P1x - L1x) * (P1x - L1x) + (P1y - L1y) * (P1y - L1y);
+        double k2 = (L1x - L0x) * (L1x - L0x) + (L1y - L0y) * (L1y - L0y);
 
         double offset = 173.35;
 
         for (double q1 = 0.0; q1 <= 95.5; q1 += 0.01)
         {
-            double cq1 = cos(DEG2RAD*q1);
-            double sq1 = sin(DEG2RAD*q1);
+            double cq1 = cos(DEG2RAD * q1);
+            double sq1 = sin(DEG2RAD * q1);
 
-            double P1xr = cq1*P1x-sq1*P1y;
-            double P1yr = sq1*P1x+cq1*P1y;
+            double P1xr = cq1 * P1x - sq1 * P1y;
+            double P1yr = sq1 * P1x + cq1 * P1y;
 
-            double h2 = (P1xr - L0x)*(P1xr - L0x) + (P1yr - L0y)*(P1yr - L0y);
+            double h2 = (P1xr - L0x) * (P1xr - L0x) + (P1yr - L0y) * (P1yr - L0y);
 
-            double alfa = RAD2DEG*atan2(L0y - P1yr, L0x - P1xr);
+            double alfa = RAD2DEG * atan2(L0y - P1yr, L0x - P1xr);
 
-            double beta = RAD2DEG*acos((h2 + l2 - k2)/(2.0*sqrt(h2*l2)));
+            double beta = RAD2DEG * acos((h2 + l2 - k2) / (2.0 * sqrt(h2 * l2)));
 
             double q2 = alfa + beta - offset;
 
-            while (q2 <    0.0) q2 += 360.0;
-            while (q2 >= 360.0) q2 -= 360.0;
+            while (q2 < 0.0)
+                q2 += 360.0;
+            while (q2 >= 360.0)
+                q2 -= 360.0;
 
             // get decimal part of q2 to find out how to weigh index and index+1
-            double dindex = q2*10.0;
+            double dindex = q2 * 10.0;
             int iindex = int(dindex);
             double w = dindex - double(iindex);
 
             // Construct LUT
-            index_lut[iindex] += (1.0 - w)*q1;
+            index_lut[iindex] += (1.0 - w) * q1;
             num[iindex] += (1.0 - w);
 
-            index_lut[iindex + 1] += w*q1;
+            index_lut[iindex + 1] += w * q1;
             num[iindex + 1] += w;
         }
 
@@ -1270,43 +1431,45 @@ HandMk5CouplingHandler::HandMk5CouplingHandler(gazebo::physics::Model* model, ya
         pinkie_lut[n] = 0.0;
     }
     {
-        double P1x =  0.0250, P1y = 0.0015;
+        double P1x = 0.0250, P1y = 0.0015;
         double L0x = -0.0050, L0y = 0.0040;
-        double L1x =  0.0190, L1y = 0.0005;
+        double L1x = 0.0190, L1y = 0.0005;
 
-        double l2 = (P1x - L1x)*(P1x - L1x) + (P1y - L1y)*(P1y - L1y);
-        double k2 = (L1x - L0x)*(L1x - L0x) + (L1y - L0y)*(L1y - L0y);
+        double l2 = (P1x - L1x) * (P1x - L1x) + (P1y - L1y) * (P1y - L1y);
+        double k2 = (L1x - L0x) * (L1x - L0x) + (L1y - L0y) * (L1y - L0y);
 
         double offset = 170.54;
         for (double q1 = 0.0; q1 <= 95.5; q1 += 0.01)
         {
-            double cq1 = cos(DEG2RAD*q1);
-            double sq1 = sin(DEG2RAD*q1);
+            double cq1 = cos(DEG2RAD * q1);
+            double sq1 = sin(DEG2RAD * q1);
 
-            double P1xr = cq1*P1x-sq1*P1y;
-            double P1yr = sq1*P1x+cq1*P1y;
+            double P1xr = cq1 * P1x - sq1 * P1y;
+            double P1yr = sq1 * P1x + cq1 * P1y;
 
-            double h2 = (P1xr - L0x)*(P1xr - L0x) + (P1yr - L0y)*(P1yr - L0y);
+            double h2 = (P1xr - L0x) * (P1xr - L0x) + (P1yr - L0y) * (P1yr - L0y);
 
-            double alfa = RAD2DEG*atan2(L0y - P1yr, L0x - P1xr);
+            double alfa = RAD2DEG * atan2(L0y - P1yr, L0x - P1xr);
 
-            double beta = RAD2DEG*acos((h2 + l2 - k2)/(2.0*sqrt(h2*l2)));
+            double beta = RAD2DEG * acos((h2 + l2 - k2) / (2.0 * sqrt(h2 * l2)));
 
             double q2 = alfa + beta - offset;
 
-            while (q2 <    0.0) q2 += 360.0;
-            while (q2 >= 360.0) q2 -= 360.0;
+            while (q2 < 0.0)
+                q2 += 360.0;
+            while (q2 >= 360.0)
+                q2 -= 360.0;
 
             // get decimal part of q2 to find out how to weigh index and index+1
-            double dindex = q2*10.0;
+            double dindex = q2 * 10.0;
             int iindex = int(dindex);
             double w = dindex - double(iindex);
 
             // Construct LUT
-            pinkie_lut[iindex] += (1.0 - w)*q1;
+            pinkie_lut[iindex] += (1.0 - w) * q1;
             num[iindex] += (1.0 - w);
 
-            pinkie_lut[iindex + 1] += w*q1;
+            pinkie_lut[iindex + 1] += w * q1;
             num[iindex + 1] += w;
         }
 
@@ -1321,9 +1484,10 @@ HandMk5CouplingHandler::HandMk5CouplingHandler(gazebo::physics::Model* model, ya
     }
 }
 
-bool HandMk5CouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+bool HandMk5CouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_pos[m_coupledJoints[1]] = current_pos[m_coupledJoints[1]] + current_pos[m_coupledJoints[2]];
     current_pos[m_coupledJoints[2]] = current_pos[m_coupledJoints[3]];
     current_pos[m_coupledJoints[3]] = current_pos[m_coupledJoints[4]] + current_pos[m_coupledJoints[5]];
@@ -1332,9 +1496,10 @@ bool HandMk5CouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
     return true;
 }
 
-bool HandMk5CouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool HandMk5CouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_vel[m_coupledJoints[1]] = current_vel[m_coupledJoints[1]] + current_vel[m_coupledJoints[2]];
     current_vel[m_coupledJoints[2]] = current_vel[m_coupledJoints[3]];
     current_vel[m_coupledJoints[3]] = current_vel[m_coupledJoints[4]] + current_vel[m_coupledJoints[5]];
@@ -1343,9 +1508,10 @@ bool HandMk5CouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
     return true;
 }
 
-bool HandMk5CouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool HandMk5CouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     current_acc[m_coupledJoints[1]] = current_acc[m_coupledJoints[1]] + current_acc[m_coupledJoints[2]];
     current_acc[m_coupledJoints[2]] = current_acc[m_coupledJoints[3]];
     current_acc[m_coupledJoints[3]] = current_acc[m_coupledJoints[4]] + current_acc[m_coupledJoints[5]];
@@ -1354,291 +1520,394 @@ bool HandMk5CouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
     return true;
 }
 
-bool HandMk5CouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool HandMk5CouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-double HandMk5CouplingHandler::decouple (double q2, std::vector<double>& lut)
+double HandMk5CouplingHandler::decouple(double q2, std::vector<double> &lut)
 {
 
-    double dindex = q2*10.0;
+    double dindex = q2 * 10.0;
     int iindex = int(dindex);
     // get decimal part of q2 to find out how to weigh index and index+1
     double w = dindex - double(iindex);
     // interpolate between index and the next with a convex combination weighting
-    return lut[iindex]*(1.0 - w) + lut[iindex + 1]*w;
+    return lut[iindex] * (1.0 - w) + lut[iindex + 1] * w;
 }
 
-yarp::sig::Vector HandMk5CouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector HandMk5CouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
     yarp::sig::Vector out = pos_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "HandMk5CouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[1]]  = decouple(pos_ref[m_coupledJoints[1]], thumb_lut);
-    out[m_coupledJoints[2]]  = pos_ref[m_coupledJoints[1]] - out[m_coupledJoints[1]];
-    out[m_coupledJoints[3]]  = pos_ref[m_coupledJoints[2]];
-    out[m_coupledJoints[4]]  = decouple(pos_ref[m_coupledJoints[3]], index_lut);
-    out[m_coupledJoints[5]]  = pos_ref[m_coupledJoints[3]] - out[m_coupledJoints[4]];
-    out[m_coupledJoints[6]]  = decouple(pos_ref[m_coupledJoints[4]], index_lut);
-    out[m_coupledJoints[7]]  = pos_ref[m_coupledJoints[4]] - out[m_coupledJoints[6]];
-    out[m_coupledJoints[8]]  = decouple(pos_ref[m_coupledJoints[5]], index_lut);
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "HandMk5CouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[1]] = decouple(pos_ref[m_coupledJoints[1]], thumb_lut);
+    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[1]] - out[m_coupledJoints[1]];
+    out[m_coupledJoints[3]] = pos_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[4]] = decouple(pos_ref[m_coupledJoints[3]], index_lut);
+    out[m_coupledJoints[5]] = pos_ref[m_coupledJoints[3]] - out[m_coupledJoints[4]];
+    out[m_coupledJoints[6]] = decouple(pos_ref[m_coupledJoints[4]], index_lut);
+    out[m_coupledJoints[7]] = pos_ref[m_coupledJoints[4]] - out[m_coupledJoints[6]];
+    out[m_coupledJoints[8]] = decouple(pos_ref[m_coupledJoints[5]], index_lut);
     out[m_coupledJoints[9]] = pos_ref[m_coupledJoints[5]] - out[m_coupledJoints[8]];
-    out[m_coupledJoints[10]] = decouple(pos_ref[m_coupledJoints[5]], pinkie_lut);;
+    out[m_coupledJoints[10]] = decouple(pos_ref[m_coupledJoints[5]], pinkie_lut);
+    ;
     out[m_coupledJoints[11]] = pos_ref[m_coupledJoints[5]] - out[m_coupledJoints[10]];
     return out;
 }
 
-yarp::sig::Vector HandMk5CouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector HandMk5CouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
     yarp::sig::Vector out = vel_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "HandMk5CouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[1]]  = decouple(vel_ref[m_coupledJoints[1]], thumb_lut);
-    out[m_coupledJoints[2]]  = vel_ref[m_coupledJoints[1]] - out[m_coupledJoints[1]];
-    out[m_coupledJoints[3]]  = vel_ref[m_coupledJoints[2]];
-    out[m_coupledJoints[4]]  = decouple(vel_ref[m_coupledJoints[3]], index_lut);
-    out[m_coupledJoints[5]]  = vel_ref[m_coupledJoints[3]] - out[m_coupledJoints[4]];
-    out[m_coupledJoints[6]]  = decouple(vel_ref[m_coupledJoints[4]], index_lut);
-    out[m_coupledJoints[7]]  = vel_ref[m_coupledJoints[4]] - out[m_coupledJoints[6]];
-    out[m_coupledJoints[8]]  = decouple(vel_ref[m_coupledJoints[5]], index_lut);
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "HandMk5CouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[1]] = decouple(vel_ref[m_coupledJoints[1]], thumb_lut);
+    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[1]] - out[m_coupledJoints[1]];
+    out[m_coupledJoints[3]] = vel_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[4]] = decouple(vel_ref[m_coupledJoints[3]], index_lut);
+    out[m_coupledJoints[5]] = vel_ref[m_coupledJoints[3]] - out[m_coupledJoints[4]];
+    out[m_coupledJoints[6]] = decouple(vel_ref[m_coupledJoints[4]], index_lut);
+    out[m_coupledJoints[7]] = vel_ref[m_coupledJoints[4]] - out[m_coupledJoints[6]];
+    out[m_coupledJoints[8]] = decouple(vel_ref[m_coupledJoints[5]], index_lut);
     out[m_coupledJoints[9]] = vel_ref[m_coupledJoints[5]] - out[m_coupledJoints[8]];
-    out[m_coupledJoints[10]] = decouple(vel_ref[m_coupledJoints[5]], pinkie_lut);;
+    out[m_coupledJoints[10]] = decouple(vel_ref[m_coupledJoints[5]], pinkie_lut);
+    ;
     out[m_coupledJoints[11]] = vel_ref[m_coupledJoints[5]] - out[m_coupledJoints[10]];
     return out;
 }
 
-yarp::sig::Vector HandMk5CouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector HandMk5CouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
-    yarp::sig::Vector out =trq_ref;
-    if (m_coupledJoints.size()!=m_couplingSize) {yCError(GAZEBOCONTROLBOARD) << "HandMk5CouplingHandler: Invalid coupling vector"; return out;}
-    out[m_coupledJoints[1]]  = decouple(trq_ref[m_coupledJoints[1]], thumb_lut);
-    out[m_coupledJoints[2]]  = trq_ref[m_coupledJoints[1]] - out[m_coupledJoints[1]];
-    out[m_coupledJoints[3]]  = trq_ref[m_coupledJoints[2]];
-    out[m_coupledJoints[4]]  = decouple(trq_ref[m_coupledJoints[3]], index_lut);
-    out[m_coupledJoints[5]]  = trq_ref[m_coupledJoints[3]] - out[m_coupledJoints[4]];
-    out[m_coupledJoints[6]]  = decouple(trq_ref[m_coupledJoints[4]], index_lut);
-    out[m_coupledJoints[7]]  = trq_ref[m_coupledJoints[4]] - out[m_coupledJoints[6]];
-    out[m_coupledJoints[8]]  = decouple(trq_ref[m_coupledJoints[5]], index_lut);
+    yarp::sig::Vector out = trq_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+    {
+        yCError(GAZEBOCONTROLBOARD) << "HandMk5CouplingHandler: Invalid coupling vector";
+        return out;
+    }
+    out[m_coupledJoints[1]] = decouple(trq_ref[m_coupledJoints[1]], thumb_lut);
+    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[1]] - out[m_coupledJoints[1]];
+    out[m_coupledJoints[3]] = trq_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[4]] = decouple(trq_ref[m_coupledJoints[3]], index_lut);
+    out[m_coupledJoints[5]] = trq_ref[m_coupledJoints[3]] - out[m_coupledJoints[4]];
+    out[m_coupledJoints[6]] = decouple(trq_ref[m_coupledJoints[4]], index_lut);
+    out[m_coupledJoints[7]] = trq_ref[m_coupledJoints[4]] - out[m_coupledJoints[6]];
+    out[m_coupledJoints[8]] = decouple(trq_ref[m_coupledJoints[5]], index_lut);
     out[m_coupledJoints[9]] = trq_ref[m_coupledJoints[5]] - out[m_coupledJoints[8]];
-    out[m_coupledJoints[10]] = decouple(trq_ref[m_coupledJoints[5]], pinkie_lut);;
+    out[m_coupledJoints[10]] = decouple(trq_ref[m_coupledJoints[5]], pinkie_lut);
+    ;
     out[m_coupledJoints[11]] = trq_ref[m_coupledJoints[5]] - out[m_coupledJoints[10]];
     return out;
 }
-
-
 
 //------------------------------------------------------------------------------------------------------------------
 // Proto3ThumbCouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-Proto3ThumbCouplingHandler::Proto3ThumbCouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits)
-{   
-        m_couplingSize=4;
+Proto3ThumbCouplingHandler::Proto3ThumbCouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits)
+{
+    m_couplingSize = 4;
 }
 
-bool Proto3ThumbCouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+bool Proto3ThumbCouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
 
-    current_pos[m_coupledJoints[1]] = m_a0 * std::pow(current_pos[m_coupledJoints[2]],5) + m_b0 * std::pow(current_pos[m_coupledJoints[2]],4) +
-                                      m_c0 * std::pow(current_pos[m_coupledJoints[2]],3) + m_d0 * std::pow(current_pos[m_coupledJoints[2]],2) + 
+    current_pos[m_coupledJoints[3]] = m_a0 * std::pow(current_pos[m_coupledJoints[2]], 5) + m_b0 * std::pow(current_pos[m_coupledJoints[2]], 4) +
+                                      m_c0 * std::pow(current_pos[m_coupledJoints[2]], 3) + m_d0 * std::pow(current_pos[m_coupledJoints[2]], 2) +
                                       m_e0 * current_pos[m_coupledJoints[2]];
     return true;
 }
 
-bool Proto3ThumbCouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool Proto3ThumbCouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-   if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
 
-    current_vel[m_coupledJoints[1]] = m_a0 * std::pow(current_vel[m_coupledJoints[2]],5) + m_b0 * std::pow(current_vel[m_coupledJoints[2]],4) +
-                                      m_c0 * std::pow(current_vel[m_coupledJoints[2]],3) + m_d0 * std::pow(current_vel[m_coupledJoints[2]],2) + 
+    current_vel[m_coupledJoints[3]] = m_a0 * std::pow(current_vel[m_coupledJoints[2]], 5) + m_b0 * std::pow(current_vel[m_coupledJoints[2]], 4) +
+                                      m_c0 * std::pow(current_vel[m_coupledJoints[2]], 3) + m_d0 * std::pow(current_vel[m_coupledJoints[2]], 2) +
                                       m_e0 * current_vel[m_coupledJoints[2]];
     return true;
 }
 
-bool Proto3ThumbCouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool Proto3ThumbCouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
 
-    current_acc[m_coupledJoints[1]] = m_a0 * std::pow(current_acc[m_coupledJoints[2]],5) + m_b0 * std::pow(current_acc[m_coupledJoints[2]],4) +
-                                      m_c0 * std::pow(current_acc[m_coupledJoints[2]],3) + m_d0 * std::pow(current_acc[m_coupledJoints[2]],2) + 
+    current_acc[m_coupledJoints[3]] = m_a0 * std::pow(current_acc[m_coupledJoints[2]], 5) + m_b0 * std::pow(current_acc[m_coupledJoints[2]], 4) +
+                                      m_c0 * std::pow(current_acc[m_coupledJoints[2]], 3) + m_d0 * std::pow(current_acc[m_coupledJoints[2]], 2) +
                                       m_e0 * current_acc[m_coupledJoints[2]];
     return true;
 }
 
-bool Proto3ThumbCouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool Proto3ThumbCouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-yarp::sig::Vector Proto3ThumbCouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector Proto3ThumbCouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
-
-    pos_ref[m_coupledJoints[1]] = m_a0 * std::pow(pos_ref[m_coupledJoints[2]],5) + m_b0 * std::pow(pos_ref[m_coupledJoints[2]],4) +
-                                      m_c0 * std::pow(pos_ref[m_coupledJoints[2]],3) + m_d0 * std::pow(pos_ref[m_coupledJoints[2]],2) + 
-                                      m_e0 * pos_ref[m_coupledJoints[2]];
-    return true;
+    yarp::sig::Vector out = pos_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
+    out[m_coupledJoints[0]] = pos_ref[m_coupledJoints[0]];
+    out[m_coupledJoints[1]] = pos_ref[m_coupledJoints[1]];
+    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[3]] = m_a0 * std::pow(pos_ref[m_coupledJoints[2]], 5) + m_b0 * std::pow(pos_ref[m_coupledJoints[2]], 4) +
+                              m_c0 * std::pow(pos_ref[m_coupledJoints[2]], 3) + m_d0 * std::pow(pos_ref[m_coupledJoints[2]], 2) +
+                              m_e0 * pos_ref[m_coupledJoints[2]];
+    return out;
 }
 
-yarp::sig::Vector Proto3ThumbCouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector Proto3ThumbCouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
-   if (m_coupledJoints.size()!=m_couplingSize) return false;
+    yarp::sig::Vector out = vel_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
 
-    vel_ref[m_coupledJoints[1]] = m_a0 * std::pow(vel_ref[m_coupledJoints[2]],5) + m_b0 * std::pow(vel_ref[m_coupledJoints[2]],4) +
-                                      m_c0 * std::pow(vel_ref[m_coupledJoints[2]],3) + m_d0 * std::pow(vel_ref[m_coupledJoints[2]],2) + 
-                                      m_e0 * vel_ref[m_coupledJoints[2]];
-    return true;
+    out[m_coupledJoints[0]] = vel_ref[m_coupledJoints[0]];
+    out[m_coupledJoints[1]] = vel_ref[m_coupledJoints[1]];
+    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[3]] = m_a0 * std::pow(vel_ref[m_coupledJoints[2]], 5) + m_b0 * std::pow(vel_ref[m_coupledJoints[2]], 4) +
+                              m_c0 * std::pow(vel_ref[m_coupledJoints[2]], 3) + m_d0 * std::pow(vel_ref[m_coupledJoints[2]], 2) +
+                              m_e0 * vel_ref[m_coupledJoints[2]];
+    return out;
 }
 
-yarp::sig::Vector Proto3ThumbCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector Proto3ThumbCouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
-    return false;
+    yarp::sig::Vector out = trq_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
+    out[m_coupledJoints[0]] = trq_ref[m_coupledJoints[0]];
+    out[m_coupledJoints[1]] = trq_ref[m_coupledJoints[1]];
+    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[3]] = m_a0 * std::pow(trq_ref[m_coupledJoints[2]], 5) + m_b0 * std::pow(trq_ref[m_coupledJoints[2]], 4) +
+                              m_c0 * std::pow(trq_ref[m_coupledJoints[2]], 3) + m_d0 * std::pow(trq_ref[m_coupledJoints[2]], 2) +
+                              m_e0 * trq_ref[m_coupledJoints[2]];
+    return out;
 }
 
 //------------------------------------------------------------------------------------------------------------------
 // Proto3IndexCouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-Proto3IndexCouplingHandler::Proto3IndexCouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits)
-{   
-        m_couplingSize=4;
+Proto3IndexCouplingHandler::Proto3IndexCouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits)
+{
+    m_couplingSize = 4;
 }
 
-bool Proto3IndexCouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+bool Proto3IndexCouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
 
-    current_pos[m_coupledJoints[1]] = m_a0 * std::pow(current_pos[m_coupledJoints[2]],5) + m_b0 * std::pow(current_pos[m_coupledJoints[2]],4) +
-                                      m_c0 * std::pow(current_pos[m_coupledJoints[2]],3) + m_d0 * std::pow(current_pos[m_coupledJoints[2]],2) + 
+    current_pos[m_coupledJoints[3]] = m_a0 * std::pow(current_pos[m_coupledJoints[2]], 5) + m_b0 * std::pow(current_pos[m_coupledJoints[2]], 4) +
+                                      m_c0 * std::pow(current_pos[m_coupledJoints[2]], 3) + m_d0 * std::pow(current_pos[m_coupledJoints[2]], 2) +
                                       m_e0 * current_pos[m_coupledJoints[2]];
     return true;
 }
 
-bool Proto3IndexCouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool Proto3IndexCouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-   if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
 
-    current_vel[m_coupledJoints[1]] = m_a0 * std::pow(current_vel[m_coupledJoints[2]],5) + m_b0 * std::pow(current_vel[m_coupledJoints[2]],4) +
-                                      m_c0 * std::pow(current_vel[m_coupledJoints[2]],3) + m_d0 * std::pow(current_vel[m_coupledJoints[2]],2) + 
+    current_vel[m_coupledJoints[3]] = m_a0 * std::pow(current_vel[m_coupledJoints[2]], 5) + m_b0 * std::pow(current_vel[m_coupledJoints[2]], 4) +
+                                      m_c0 * std::pow(current_vel[m_coupledJoints[2]], 3) + m_d0 * std::pow(current_vel[m_coupledJoints[2]], 2) +
                                       m_e0 * current_vel[m_coupledJoints[2]];
     return true;
 }
 
-bool Proto3IndexCouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool Proto3IndexCouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
 
-    current_acc[m_coupledJoints[1]] = m_a0 * std::pow(current_acc[m_coupledJoints[2]],5) + m_b0 * std::pow(current_acc[m_coupledJoints[2]],4) +
-                                      m_c0 * std::pow(current_acc[m_coupledJoints[2]],3) + m_d0 * std::pow(current_acc[m_coupledJoints[2]],2) + 
+    current_acc[m_coupledJoints[3]] = m_a0 * std::pow(current_acc[m_coupledJoints[2]], 5) + m_b0 * std::pow(current_acc[m_coupledJoints[2]], 4) +
+                                      m_c0 * std::pow(current_acc[m_coupledJoints[2]], 3) + m_d0 * std::pow(current_acc[m_coupledJoints[2]], 2) +
                                       m_e0 * current_acc[m_coupledJoints[2]];
     return true;
 }
 
-bool Proto3IndexCouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool Proto3IndexCouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-yarp::sig::Vector Proto3IndexCouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector Proto3IndexCouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    yarp::sig::Vector out = pos_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
 
-    pos_ref[m_coupledJoints[1]] = m_a0 * std::pow(pos_ref[m_coupledJoints[2]],5) + m_b0 * std::pow(pos_ref[m_coupledJoints[2]],4) +
-                                      m_c0 * std::pow(pos_ref[m_coupledJoints[2]],3) + m_d0 * std::pow(pos_ref[m_coupledJoints[2]],2) + 
-                                      m_e0 * pos_ref[m_coupledJoints[2]];
-    return true;
+    out[m_coupledJoints[0]] = pos_ref[m_coupledJoints[0]];
+    out[m_coupledJoints[1]] = pos_ref[m_coupledJoints[1]];
+    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[3]] = m_a0 * std::pow(pos_ref[m_coupledJoints[2]], 5) + m_b0 * std::pow(pos_ref[m_coupledJoints[2]], 4) +
+                              m_c0 * std::pow(pos_ref[m_coupledJoints[2]], 3) + m_d0 * std::pow(pos_ref[m_coupledJoints[2]], 2) +
+                              m_e0 * pos_ref[m_coupledJoints[2]];
+    return out;
 }
 
-yarp::sig::Vector Proto3IndexCouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector Proto3IndexCouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
-   if (m_coupledJoints.size()!=m_couplingSize) return false;
+    yarp::sig::Vector out = vel_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
 
-    vel_ref[m_coupledJoints[1]] = m_a0 * std::pow(vel_ref[m_coupledJoints[2]],5) + m_b0 * std::pow(vel_ref[m_coupledJoints[2]],4) +
-                                      m_c0 * std::pow(vel_ref[m_coupledJoints[2]],3) + m_d0 * std::pow(vel_ref[m_coupledJoints[2]],2) + 
-                                      m_e0 * vel_ref[m_coupledJoints[2]];
-    return true;
+    out[m_coupledJoints[0]] = vel_ref[m_coupledJoints[0]]; 
+    out[m_coupledJoints[1]] = vel_ref[m_coupledJoints[1]];
+    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[3]] = m_a0 * std::pow(vel_ref[m_coupledJoints[2]], 5) + m_b0 * std::pow(vel_ref[m_coupledJoints[2]], 4) +
+                                  m_c0 * std::pow(vel_ref[m_coupledJoints[2]], 3) + m_d0 * std::pow(vel_ref[m_coupledJoints[2]], 2) +
+                                  m_e0 * vel_ref[m_coupledJoints[2]];
+    return out;
 }
 
-yarp::sig::Vector Proto3IndexCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector Proto3IndexCouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
-    return false;
+    yarp::sig::Vector out = trq_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
+
+    out[m_coupledJoints[0]] = trq_ref[m_coupledJoints[0]]; 
+    out[m_coupledJoints[1]] = trq_ref[m_coupledJoints[1]];
+    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[3]] = m_a0 * std::pow(trq_ref[m_coupledJoints[2]], 5) + m_b0 * std::pow(trq_ref[m_coupledJoints[2]], 4) +
+                                  m_c0 * std::pow(trq_ref[m_coupledJoints[2]], 3) + m_d0 * std::pow(trq_ref[m_coupledJoints[2]], 2) +
+                                  m_e0 * trq_ref[m_coupledJoints[2]];
+    return out;
 }
 
 //------------------------------------------------------------------------------------------------------------------
 // Proto3FingerCouplingHandler
 //------------------------------------------------------------------------------------------------------------------
 
-Proto3FingerCouplingHandler::Proto3FingerCouplingHandler(gazebo::physics::Model* model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
-: BaseCouplingHandler(model, coupled_joints,coupled_joint_names, coupled_joint_limits)
-{   
-        m_couplingSize=8;
+Proto3FingerCouplingHandler::Proto3FingerCouplingHandler(gazebo::physics::Model *model, yarp::sig::VectorOf<int> coupled_joints, std::vector<std::string> coupled_joint_names, std::vector<Range> coupled_joint_limits)
+    : BaseCouplingHandler(model, coupled_joints, coupled_joint_names, coupled_joint_limits)
+{
+    m_couplingSize = 8;
 }
 
-bool Proto3FingerCouplingHandler::decouplePos (yarp::sig::Vector& current_pos)
+bool Proto3FingerCouplingHandler::decouplePos(yarp::sig::Vector &current_pos)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
-    current_pos[m_coupledJoints[0]] = current_pos[m_coupledJoints[4]]; 
-    current_pos[m_coupledJoints[2]] = m_a0 * std::pow(current_pos[m_coupledJoints[3]],5) + m_b0 * std::pow(current_pos[m_coupledJoints[3]],4) +
-                                      m_c0 * std::pow(current_pos[m_coupledJoints[3]],3) + m_d0 * std::pow(current_pos[m_coupledJoints[3]],2) + 
-                                      m_e0 * current_pos[m_coupledJoints[3]];
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
+    
+    current_pos[m_coupledJoints[3]] = m_a0 * std::pow(current_pos[m_coupledJoints[2]], 5) + m_b0 * std::pow(current_pos[m_coupledJoints[2]], 4) +
+                                      m_c0 * std::pow(current_pos[m_coupledJoints[2]], 3) + m_d0 * std::pow(current_pos[m_coupledJoints[2]], 2) +
+                                      m_e0 * current_pos[m_coupledJoints[2]];
+    current_pos[m_coupledJoints[4]] = current_pos[m_coupledJoints[0]];
     return true;
 }
 
-bool Proto3FingerCouplingHandler::decoupleVel (yarp::sig::Vector& current_vel)
+bool Proto3FingerCouplingHandler::decoupleVel(yarp::sig::Vector &current_vel)
 {
-   if (m_coupledJoints.size()!=m_couplingSize) return false;
-    current_vel[m_coupledJoints[0]] = current_vel[m_coupledJoints[4]];
-    current_vel[m_coupledJoints[2]] = m_a0 * std::pow(current_vel[m_coupledJoints[3]],5) + m_b0 * std::pow(current_vel[m_coupledJoints[3]],4) +
-                                      m_c0 * std::pow(current_vel[m_coupledJoints[3]],3) + m_d0 * std::pow(current_vel[m_coupledJoints[3]],2) + 
-                                      m_e0 * current_vel[m_coupledJoints[3]];
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
+    
+    current_vel[m_coupledJoints[3]] = m_a0 * std::pow(current_vel[m_coupledJoints[2]], 5) + m_b0 * std::pow(current_vel[m_coupledJoints[2]], 4) +
+                                      m_c0 * std::pow(current_vel[m_coupledJoints[2]], 3) + m_d0 * std::pow(current_vel[m_coupledJoints[2]], 2) +
+                                      m_e0 * current_vel[m_coupledJoints[2]];
+    current_vel[m_coupledJoints[4]] = current_vel[m_coupledJoints[0]];
     return true;
 }
 
-bool Proto3FingerCouplingHandler::decoupleAcc (yarp::sig::Vector& current_acc)
+bool Proto3FingerCouplingHandler::decoupleAcc(yarp::sig::Vector &current_acc)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
-    current_acc[m_coupledJoints[0]] = current_acc[m_coupledJoints[4]]; 
-    current_acc[m_coupledJoints[2]] = m_a0 * std::pow(current_acc[m_coupledJoints[3]],5) + m_b0 * std::pow(current_acc[m_coupledJoints[3]],4) +
-                                      m_c0 * std::pow(current_acc[m_coupledJoints[3]],3) + m_d0 * std::pow(current_acc[m_coupledJoints[3]],2) + 
-                                      m_e0 * current_acc[m_coupledJoints[3]];
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
+    
+    current_acc[m_coupledJoints[3]] = m_a0 * std::pow(current_acc[m_coupledJoints[2]], 5) + m_b0 * std::pow(current_acc[m_coupledJoints[2]], 4) +
+                                      m_c0 * std::pow(current_acc[m_coupledJoints[2]], 3) + m_d0 * std::pow(current_acc[m_coupledJoints[2]], 2) +
+                                      m_e0 * current_acc[m_coupledJoints[2]];
+    
+    current_acc[m_coupledJoints[4]] = current_acc[m_coupledJoints[0]];
     return true;
 }
 
-bool Proto3FingerCouplingHandler::decoupleTrq (yarp::sig::Vector& current_trq)
+bool Proto3FingerCouplingHandler::decoupleTrq(yarp::sig::Vector &current_trq)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
     return false;
 }
 
-yarp::sig::Vector Proto3FingerCouplingHandler::decoupleRefPos (yarp::sig::Vector& pos_ref)
+yarp::sig::Vector Proto3FingerCouplingHandler::decoupleRefPos(yarp::sig::Vector &pos_ref)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
-    pos_ref[m_coupledJoints[0]] = pos_ref[m_coupledJoints[4]];
-    pos_ref[m_coupledJoints[2]] = m_a0 * std::pow(pos_ref[m_coupledJoints[3]],5) + m_b0 * std::pow(pos_ref[m_coupledJoints[3]],4) +
-                                      m_c0 * std::pow(pos_ref[m_coupledJoints[3]],3) + m_d0 * std::pow(pos_ref[m_coupledJoints[3]],2) + 
-                                      m_e0 * pos_ref[m_coupledJoints[3]];
-    return true;
+    yarp::sig::Vector out = pos_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
+    
+    out[m_coupledJoints[0]] = pos_ref[m_coupledJoints[0]];
+    out[m_coupledJoints[1]] = pos_ref[m_coupledJoints[1]];
+    out[m_coupledJoints[2]] = pos_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[3]] = m_a0 * std::pow(pos_ref[m_coupledJoints[2]], 5) + m_b0 * std::pow(pos_ref[m_coupledJoints[2]], 4) +
+                                  m_c0 * std::pow(pos_ref[m_coupledJoints[2]], 3) + m_d0 * std::pow(pos_ref[m_coupledJoints[2]], 2) +
+                                  m_e0 * pos_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[4]] = pos_ref[m_coupledJoints[0]];    
+    out[m_coupledJoints[5]] = pos_ref[m_coupledJoints[5]];
+    out[m_coupledJoints[6]] = pos_ref[m_coupledJoints[6]];
+    out[m_coupledJoints[7]] = m_a0 * std::pow(pos_ref[m_coupledJoints[6]], 5) + m_b0 * std::pow(pos_ref[m_coupledJoints[6]], 4) +
+                                  m_c0 * std::pow(pos_ref[m_coupledJoints[6]], 3) + m_d0 * std::pow(pos_ref[m_coupledJoints[6]], 2) +
+                                  m_e0 * pos_ref[m_coupledJoints[6]];                          
+    return out;
 }
 
-yarp::sig::Vector Proto3FingerCouplingHandler::decoupleRefVel (yarp::sig::Vector& vel_ref)
+yarp::sig::Vector Proto3FingerCouplingHandler::decoupleRefVel(yarp::sig::Vector &vel_ref)
 {
-   if (m_coupledJoints.size()!=m_couplingSize) return false;
-    vel_ref[m_coupledJoints[0]] = vel_ref[m_coupledJoints[4]];
-    vel_ref[m_coupledJoints[2]] = m_a0 * std::pow(vel_ref[m_coupledJoints[3]],5) + m_b0 * std::pow(vel_ref[m_coupledJoints[3]],4) +
-                                      m_c0 * std::pow(vel_ref[m_coupledJoints[3]],3) + m_d0 * std::pow(vel_ref[m_coupledJoints[3]],2) + 
-                                      m_e0 * vel_ref[m_coupledJoints[3]];
-    return true;
+    yarp::sig::Vector out = vel_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
+    
+    out[m_coupledJoints[0]] = vel_ref[m_coupledJoints[0]];
+    out[m_coupledJoints[1]] = vel_ref[m_coupledJoints[1]];
+    out[m_coupledJoints[2]] = vel_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[3]] = m_a0 * std::pow(vel_ref[m_coupledJoints[2]], 5) + m_b0 * std::pow(vel_ref[m_coupledJoints[2]], 4) +
+                                  m_c0 * std::pow(vel_ref[m_coupledJoints[2]], 3) + m_d0 * std::pow(vel_ref[m_coupledJoints[2]], 2) +
+                                  m_e0 * vel_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[4]] = vel_ref[m_coupledJoints[0]];    
+    out[m_coupledJoints[5]] = vel_ref[m_coupledJoints[5]];
+    out[m_coupledJoints[6]] = vel_ref[m_coupledJoints[6]];
+    out[m_coupledJoints[7]] = m_a0 * std::pow(vel_ref[m_coupledJoints[6]], 5) + m_b0 * std::pow(vel_ref[m_coupledJoints[6]], 4) +
+                                  m_c0 * std::pow(vel_ref[m_coupledJoints[6]], 3) + m_d0 * std::pow(vel_ref[m_coupledJoints[6]], 2) +
+                                  m_e0 * vel_ref[m_coupledJoints[6]];                          
+    return out;
 }
 
-yarp::sig::Vector Proto3FingerCouplingHandler::decoupleRefTrq (yarp::sig::Vector& trq_ref)
+yarp::sig::Vector Proto3FingerCouplingHandler::decoupleRefTrq(yarp::sig::Vector &trq_ref)
 {
-    if (m_coupledJoints.size()!=m_couplingSize) return false;
-    return false;
+    yarp::sig::Vector out = trq_ref;
+    if (m_coupledJoints.size() != m_couplingSize)
+        return false;
+    
+    out[m_coupledJoints[0]] = trq_ref[m_coupledJoints[0]];
+    out[m_coupledJoints[1]] = trq_ref[m_coupledJoints[1]];
+    out[m_coupledJoints[2]] = trq_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[3]] = m_a0 * std::pow(trq_ref[m_coupledJoints[2]], 5) + m_b0 * std::pow(trq_ref[m_coupledJoints[2]], 4) +
+                                  m_c0 * std::pow(trq_ref[m_coupledJoints[2]], 3) + m_d0 * std::pow(trq_ref[m_coupledJoints[2]], 2) +
+                                  m_e0 * trq_ref[m_coupledJoints[2]];
+    out[m_coupledJoints[4]] = trq_ref[m_coupledJoints[0]];    
+    out[m_coupledJoints[5]] = trq_ref[m_coupledJoints[5]];
+    out[m_coupledJoints[6]] = trq_ref[m_coupledJoints[6]];
+    out[m_coupledJoints[7]] = m_a0 * std::pow(trq_ref[m_coupledJoints[6]], 5) + m_b0 * std::pow(trq_ref[m_coupledJoints[6]], 4) +
+                                  m_c0 * std::pow(trq_ref[m_coupledJoints[6]], 3) + m_d0 * std::pow(trq_ref[m_coupledJoints[6]], 2) +
+                                  m_e0 * trq_ref[m_coupledJoints[6]];                          
+    return out;
 }
